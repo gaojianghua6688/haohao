@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ff8fc7">
+  <title>刷题网页</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif;
+      color: #41374b;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(255, 143, 199, .28), transparent 28%),
+        radial-gradient(circle at 86% 20%, rgba(143, 229, 200, .28), transparent 30%),
+        linear-gradient(135deg, #fff7fb 0%, #f7fbff 52%, #fff9e7 100%);
+    }
+
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0 34px;
+    }
+
+    .top {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 7vw, 54px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .date {
+      margin-top: 10px;
+      color: #796d83;
+      font-size: 16px;
+    }
+
+    .badge {
+      flex: 0 0 auto;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .72);
+      border: 1px solid rgba(111, 76, 130, .13);
+      color: #6d6178;
+      box-shadow: 0 12px 28px rgba(168, 113, 170, .12);
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    a.card {
+      min-height: 210px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 22px;
+      padding: 22px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: inherit;
+      background: rgba(255, 255, 255, .78);
+      border: 1px solid rgba(111, 76, 130, .14);
+      box-shadow: 0 18px 45px rgba(168, 113, 170, .14);
+    }
+
+    .card strong {
+      display: block;
+      font-size: 25px;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    .card span {
+      display: block;
+      margin-top: 10px;
+      color: #74687c;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .arrow {
+      align-self: flex-start;
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: #ff8fc7;
+      color: #fff;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    footer {
+      margin-top: 22px;
+      color: #7a6e83;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 700px) {
+      main { width: min(100% - 24px, 620px); padding-top: 26px; }
+      .top { display: block; }
+      .badge { display: inline-block; margin-top: 16px; }
+      .grid { grid-template-columns: 1fr; }
+      a.card { min-height: 168px; padding: 20px; }
+      .card strong { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="top" aria-label="刷题入口">
+      <div>
+        <h1>刷题网页</h1>
+        <div class="date">平板、手机、电脑都可以打开使用</div>
+      </div>
+      <div class="badge">可发布为固定网址</div>
+    </section>
+
+    <section class="grid">
+      <a class="card" href="./七至九年级全科刷题网页.html">
+        <div>
+          <strong>七至九年级全科刷题</strong>
+          <span>适合初中多学科练习，点击后进入原来的刷题页面。</span>
+        </div>
+        <div class="arrow" aria-hidden="true">›</div>
+      </a>
+
+      <a class="card" href="./广州初二本地刷题网页.html">
+        <div>
+          <strong>广州初二本地刷题</strong>
+          <span>适合广州初二内容练习，点击后进入原来的刷题页面。</span>
+        </div>
+        <div class="arrow" aria-hidden="true">›</div>
+      </a>
+    </section>
+
+    <footer>
+      发布后，把固定网址保存到平板浏览器书签，或添加到主屏幕，就能像应用一样打开。
+    </footer>
+  </main>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

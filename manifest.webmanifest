@@ -1,0 +1,9 @@
+{
+  "name": "刷题网页",
+  "short_name": "刷题",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fff7fb",
+  "theme_color": "#ff8fc7",
+  "lang": "zh-CN"
+}
