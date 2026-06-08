@@ -1,0 +1,869 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>鑺辨季涓€冨叏绉戠鎶€鏍戝埛棰?/title>
+  <style>
+    /* 绂荤嚎鐗?Tailwind 椋庢牸璁捐鍙橀噺锛氫笉寮曠敤 CDN锛屽弻鍑诲嵆鍙繍琛?*/
+    :root {
+      --bg: #fff7fb;
+      --card: rgba(255,255,255,.82);
+      --ink: #4a3b55;
+      --muted: #85758f;
+      --line: rgba(139, 101, 160, .18);
+      --pink: #ff8fc7;
+      --pink2: #ffd8ec;
+      --purple: #b79cff;
+      --purple2: #eee8ff;
+      --mint: #8fe5c8;
+      --mint2: #e2faf2;
+      --yellow: #ffe892;
+      --blue: #8bcaff;
+      --red: #ff8b9a;
+      --green: #3fb989;
+      --shadow: 0 18px 48px rgba(152, 96, 164, .18);
+      --radius: 24px;
+      --fontScale: 1;
+      --lineScale: 1.55;
+    }
+    body.night {
+      --bg: #191628;
+      --card: rgba(37, 31, 55, .88);
+      --ink: #f6edff;
+      --muted: #c9bad8;
+      --line: rgba(255,255,255,.14);
+      --shadow: 0 18px 48px rgba(0,0,0,.28);
+    }
+    body.eye {
+      --bg: #f4f8e7;
+      --card: rgba(255, 253, 235, .88);
+      --pink: #ef91b8;
+      --purple: #aaa0dd;
+      --mint: #91d7b7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif;
+      font-size: calc(16px * var(--fontScale));
+      line-height: var(--lineScale);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(255,216,236,.9), transparent 28%),
+        radial-gradient(circle at 92% 8%, rgba(226,250,242,.92), transparent 26%),
+        linear-gradient(135deg, var(--bg), var(--purple2));
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    button, input, select { font: inherit; }
+    button { border: 0; cursor: pointer; }
+    .hidden { display: none !important; }
+    .app { width: min(1500px, calc(100vw - 28px)); margin: 0 auto; padding: 18px 0 30px; }
+    .top {
+      display: flex; justify-content: space-between; align-items: center; gap: 14px;
+      margin-bottom: 14px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo {
+      width: 58px; height: 58px; border-radius: 22px; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: white; font-size: 30px; box-shadow: var(--shadow);
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 2px; font-size: 27px; letter-spacing: 0; }
+    h2 { font-size: 22px; margin-bottom: 10px; }
+    h3 { font-size: 17px; margin-bottom: 9px; }
+    .muted { color: var(--muted); }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab, .btn {
+      min-height: 42px; padding: 10px 15px; border-radius: 999px;
+      color: var(--ink); background: rgba(255,255,255,.72); border: 1px solid var(--line);
+      box-shadow: 0 8px 18px rgba(120, 82, 150, .1);
+    }
+    .tab.active, .btn.primary {
+      color: white; font-weight: 900; border-color: transparent;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+    }
+    .btn.mint { background: linear-gradient(135deg, var(--mint), #cff7e8); font-weight: 800; }
+    .btn.warn { background: #fff1f3; color: #a43b55; border-color: #ffd0d8; }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .layout {
+      display: grid; grid-template-columns: 330px minmax(0, 1fr) 330px; gap: 14px; align-items: start;
+    }
+    .panel {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 18px; box-shadow: var(--shadow); backdrop-filter: blur(12px);
+    }
+    .side { position: sticky; top: 14px; max-height: calc(100vh - 28px); overflow: auto; }
+    .row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+    .grid { display: grid; gap: 10px; }
+    .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .stat {
+      padding: 13px; border-radius: 18px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.56);
+    }
+    .stat small { display: block; color: var(--muted); }
+    .stat strong { font-size: 24px; }
+    .subject-list { display: grid; gap: 8px; margin-bottom: 12px; }
+    .subject-btn {
+      width: 100%; display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 13px; border-radius: 18px; background: rgba(255,255,255,.62);
+      color: var(--ink); border: 1px solid var(--line); font-weight: 800;
+    }
+    .subject-btn.active { outline: 3px solid rgba(255,143,199,.36); background: #fff1f8; }
+    .tree { display: grid; gap: 10px; }
+    .tree-layer { display: grid; gap: 8px; position: relative; padding-left: 14px; }
+    .tree-layer::before {
+      content: ""; position: absolute; left: 3px; top: 8px; bottom: -8px; width: 2px;
+      background: linear-gradient(var(--pink2), var(--mint2));
+    }
+    .layer-title { color: var(--muted); font-weight: 900; font-size: 13px; }
+    .node {
+      width: 100%; text-align: left; padding: 12px; border-radius: 18px;
+      border: 2px solid transparent; background: rgba(255,255,255,.6); color: var(--ink);
+      transition: .18s ease; position: relative;
+    }
+    .node.locked { filter: grayscale(1); opacity: .48; cursor: not-allowed; }
+    .node.open { border-color: rgba(183,156,255,.35); }
+    .node.open.level-1 { border-color: rgba(143,229,200,.55); }
+    .node.open.level-2 { border-color: rgba(139,202,255,.55); }
+    .node.open.level-3 { border-color: rgba(255,143,199,.5); }
+    .node.selected { border-color: var(--pink); background: #fff0f7; }
+    .node.lit {
+      border-color: var(--yellow); background: linear-gradient(135deg, #fff7cf, #e5fff4);
+      animation: glow 1.6s ease-in-out infinite alternate;
+    }
+    @keyframes glow { from { box-shadow: 0 0 0 rgba(255,232,146,0); } to { box-shadow: 0 0 22px rgba(255,202,88,.55); } }
+    .badge-pill {
+      display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 999px;
+      background: rgba(255,255,255,.68); border: 1px solid var(--line);
+      color: var(--muted); font-size: 12px; font-weight: 800;
+    }
+    .bar { height: 13px; border-radius: 999px; background: rgba(255,255,255,.75); border: 1px solid var(--line); overflow: hidden; }
+    .bar i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--mint), var(--yellow), var(--pink)); border-radius: inherit; transition: .25s; }
+    .builder { display: grid; gap: 12px; }
+    .field { display: grid; gap: 6px; }
+    .field label { font-weight: 900; color: var(--muted); font-size: 13px; }
+    select, input[type="number"] {
+      width: 100%; padding: 11px 12px; border-radius: 16px; border: 1px solid var(--line);
+      color: var(--ink); background: rgba(255,255,255,.75); outline: 0;
+    }
+    .switches { display: flex; gap: 8px; flex-wrap: wrap; }
+    .switch {
+      padding: 10px 12px; border-radius: 999px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.65); color: var(--ink); font-weight: 800;
+    }
+    .switch.active { background: linear-gradient(135deg, var(--mint), var(--yellow)); }
+    .exam-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px; }
+    .question {
+      padding: 18px; border-radius: 22px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.62); margin-bottom: 12px;
+    }
+    body.focus-guard .question, body.focus-guard .answer-card {
+      -webkit-user-select: none; user-select: none;
+    }
+    .q-title { font-weight: 900; font-size: 19px; margin: 10px 0; }
+    .options { display: grid; gap: 9px; }
+    .opt {
+      display: flex; gap: 10px; align-items: flex-start; padding: 13px; border-radius: 18px;
+      background: rgba(255,255,255,.72); border: 2px solid transparent; cursor: pointer;
+    }
+    .opt.chosen { border-color: var(--pink); background: #fff1f8; }
+    .mark-btn.marked { background: var(--yellow); }
+    .answer-card { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
+    .answer-dot {
+      min-height: 34px; border-radius: 12px; display: grid; place-items: center; font-weight: 900;
+      border: 1px solid var(--line); background: rgba(255,255,255,.68);
+    }
+    .answer-dot.done { background: var(--mint2); color: #227a5c; }
+    .answer-dot.marked { outline: 3px solid rgba(255,232,146,.8); }
+    .answer-dot.wrong { background: #ffe4eb; color: #9b334d; }
+    .answer-dot.right { background: #ddfff1; color: #197b58; }
+    .analysis { display: none; margin-top: 10px; padding: 12px; border-radius: 16px; background: rgba(255,255,255,.6); border: 1px solid var(--line); }
+    .analysis.show { display: block; }
+    .modal {
+      position: fixed; inset: 0; display: none; place-items: center; padding: 18px;
+      background: rgba(65,42,82,.34); z-index: 30;
+    }
+    .modal.show { display: grid; }
+    .modal-box { width: min(560px, 100%); background: var(--card); border-radius: 28px; padding: 24px; box-shadow: var(--shadow); text-align: center; }
+    .toast {
+      position: fixed; right: 18px; bottom: 18px; max-width: 360px; display: none;
+      background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 13px; box-shadow: var(--shadow); z-index: 40;
+    }
+    .toast.show { display: block; }
+    .petal { position: fixed; pointer-events: none; z-index: 35; animation: float 1000ms ease forwards; font-size: 26px; }
+    @keyframes float { to { transform: translateY(-90px) rotate(22deg); opacity: 0; } }
+    .mistake-item, .skin, .medal {
+      padding: 14px; border-radius: 18px; border: 1px solid var(--line); background: rgba(255,255,255,.6);
+    }
+    .guide { text-align: left; }
+    @media (max-width: 1180px) {
+      .layout { grid-template-columns: 280px minmax(0,1fr); }
+      .right-side { position: static; grid-column: 1 / -1; max-height: none; }
+    }
+    @media (max-width: 760px) {
+      .app { width: calc(100vw - 18px); padding-top: 10px; }
+      .top { align-items: stretch; flex-direction: column; }
+      .tabs { display: grid; grid-template-columns: repeat(2, 1fr); }
+      .layout { grid-template-columns: 1fr; }
+      .side { position: static; max-height: none; }
+      .left-side.collapsed, .right-side.collapsed { display: none; }
+      .panel { padding: 14px; border-radius: 20px; }
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+      .exam-head { flex-direction: column; align-items: stretch; }
+      .answer-card { grid-template-columns: repeat(6, 1fr); }
+      .btn, .tab { min-height: 46px; }
+      body.exam-mode { overscroll-behavior: contain; }
+    }
+    @media print {
+      body { background: white; }
+      .top, .left-side, .right-side, .builder, .tabs, .btn, .modal, .toast { display: none !important; }
+      .layout { display: block; }
+      .panel { box-shadow: none; border: 0; }
+      .analysis { display: block !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">鉁?/div>
+        <div>
+          <h1>鑺辨季涓€冨叏绉戠鎶€鏍戝埛棰?/h1>
+          <div class="muted">涓冭嚦涔濆勾绾?路 骞垮窞涓€冮鏍?路 鍗曟枃浠剁绾跨増</div>
+        </div>
+      </div>
+      <nav class="tabs">
+        <button class="tab active" data-tab="study">绉戞妧鏍戠粍鍗?/button>
+        <button class="tab" data-tab="exam">绛旈鍖?/button>
+        <button class="tab" data-tab="mistakes">閿欓鏈?/button>
+        <button class="tab" data-tab="me">涓汉涓績</button>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <aside class="panel side left-side" id="leftSide">
+        <h2>绉戠洰绉戞妧鏍?/h2>
+        <div class="subject-list" id="subjectList"></div>
+        <div class="row" style="margin-bottom:12px">
+          <button class="btn mint" id="selectUnlockedBtn">涓€閿叏閫夊凡瑙ｉ攣</button>
+          <button class="btn" id="clearSelectedBtn">娓呯┖閫夋嫨</button>
+        </div>
+        <div id="tree" class="tree"></div>
+      </aside>
+
+      <section class="panel" id="mainPanel">
+        <div id="studyView">
+          <h2>缁勫嵎璁剧疆</h2>
+          <div class="builder">
+            <div class="grid3">
+              <div class="field"><label>鎸戞垬闅惧害</label><select id="difficulty"><option value="easy">绠€鍗?/option><option value="medium">涓瓑</option><option value="hard">鍥伴毦</option></select></div>
+              <div class="field"><label>鍑洪妯″紡</label><select id="mode"><option value="real">鐪熼妯″紡</option><option value="mix">缁煎悎缁冧範妯″紡</option></select></div>
+              <div class="field"><label>绛旈鏃堕暱</label><select id="timeMode"><option value="standard">涓€冩爣鍑嗘椂闀?/option><option value="limit">闄愭椂璁粌 30 鍒嗛挓</option><option value="free">鏃犺鏃惰嚜鐢辩粌涔?/option></select></div>
+            </div>
+            <div class="grid2">
+              <div class="stat"><small>宸查€夌煡璇嗙偣</small><strong id="selectedCount">0</strong></div>
+              <div class="stat"><small>棰勮璇曞嵎</small><strong>100鍒?路 25-30棰?/strong></div>
+            </div>
+            <div class="row">
+              <button class="btn primary" id="buildBtn">鐢熸垚璇曞嵎骞跺紑濮?/button>
+              <button class="btn" id="guideBtn">鏂版墜鎸囧紩</button>
+            </div>
+          </div>
+          <div style="margin-top:18px">
+            <h2>褰撳墠宸查€夌煡璇嗙偣</h2>
+            <div class="row" id="selectedTags"></div>
+          </div>
+        </div>
+
+        <div id="examView" class="hidden">
+          <div class="exam-head">
+            <div>
+              <h2 id="paperTitle">浠婃棩鎸戞垬鍗?/h2>
+              <div class="row">
+                <span class="badge-pill" id="timer">璁℃椂 --:--</span>
+                <span class="badge-pill" id="paperMeta">100鍒?/span>
+                <span class="badge-pill" id="progressText">0/0</span>
+                <span class="badge-pill" id="focusWarn">涓撴敞璁板綍 0</span>
+              </div>
+            </div>
+            <div class="row">
+              <button class="btn mark-btn" id="markBtn">鏍囪 M</button>
+              <button class="btn" id="prevBtn">涓婁竴棰?/button>
+              <button class="btn mint" id="nextBtn">涓嬩竴棰?/button>
+              <button class="btn primary" id="submitBtn">浜ゅ嵎</button>
+            </div>
+          </div>
+          <div class="bar" style="margin-bottom:12px"><i id="examBar"></i></div>
+          <div id="questionBox"></div>
+        </div>
+
+        <div id="mistakesView" class="hidden">
+          <div class="row" style="justify-content:space-between;margin-bottom:12px">
+            <div><h2>閿欓鏈?/h2><p class="muted">楂橀閿欓浼樺厛灞曠ず锛屽彲閲嶅仛鍙樺紡銆佸鍑烘垨鎵撳嵃銆?/p></div>
+            <div class="row">
+              <select id="mistakeSubject"></select>
+              <button class="btn" id="printMistakesBtn">鎵撳嵃閿欓</button>
+              <button class="btn warn" id="clearMistakesBtn">娓呯┖閿欓</button>
+            </div>
+          </div>
+          <div id="mistakeList" class="grid"></div>
+        </div>
+
+        <div id="meView" class="hidden">
+          <h2>涓汉涓績</h2>
+          <div class="grid3">
+            <div class="stat"><small>鎬绘槦鏁?/small><strong id="meStars">0</strong></div>
+            <div class="stat"><small>瀹屾垚鐜?/small><strong id="meRate">0%</strong></div>
+            <div class="stat"><small>宸茬偣浜煡璇嗙偣</small><strong id="meLit">0</strong></div>
+          </div>
+          <div style="margin-top:16px">
+            <h3>姣忔棩绛惧埌</h3>
+            <div class="row"><button class="btn mint" id="checkinBtn">浠婃棩绛惧埌</button><span id="checkinText" class="muted"></span></div>
+          </div>
+          <div style="margin-top:16px"><h3>鍕嬬珷</h3><div class="grid3" id="medals"></div></div>
+          <div style="margin-top:16px"><h3>鐨偆</h3><div class="grid3" id="skins"></div></div>
+          <div style="margin-top:16px">
+            <h3>瑙嗚璋冭妭</h3>
+            <div class="grid3">
+              <div class="field"><label>瀛楀彿</label><input id="fontSize" type="number" min="90" max="130" step="5"></div>
+              <div class="field"><label>琛岃窛</label><input id="lineHeight" type="number" min="130" max="190" step="5"></div>
+              <div class="field"><label>妯″紡</label><select id="visualMode"><option value="">娓呮柊妯″紡</option><option value="eye">鎶ょ溂妯″紡</option><option value="night">澶滈棿妯″紡</option></select></div>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <label class="badge-pill"><input type="checkbox" id="focusGuard"> 寮€鍚笓娉ㄩ槻鏌ユā寮?/label>
+            </div>
+          </div>
+          <div style="margin-top:16px">
+            <h3>鏁版嵁绠＄悊</h3>
+            <div class="row">
+              <button class="btn" id="exportBtn">瀵煎嚭鏁版嵁</button>
+              <button class="btn" id="importBtn">瀵煎叆鏁版嵁</button>
+              <input type="file" id="importFile" accept=".json" class="hidden">
+              <button class="btn warn" id="resetBtn">閲嶇疆杩涘害</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel side right-side" id="rightSide">
+        <h2>瀛︿範鏁版嵁</h2>
+        <div class="grid2">
+          <div class="stat"><small>鏄熸槦</small><strong id="stars">0</strong></div>
+          <div class="stat"><small>閿欓</small><strong id="wrongCount">0</strong></div>
+          <div class="stat"><small>宸茶В閿?/small><strong id="openCount">0</strong></div>
+          <div class="stat"><small>宸茬偣浜?/small><strong id="litCount">0</strong></div>
+        </div>
+        <div style="margin-top:14px">
+          <h3>绛旈鍗?/h3>
+          <div class="answer-card" id="answerCard"></div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn" id="jumpMarkedBtn">璺宠浆鏍囪棰?/button>
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <h3>蹇嵎閿?/h3>
+          <p class="muted">鏁板瓧/瀛楁瘝閫夌瓟妗堬紝鈫?鈫?缈婚锛孧 鏍囪锛孍nter 涓嬩竴棰樸€?/p>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="modal show" id="guideModal">
+    <div class="modal-box guide">
+      <h2>鏂版墜绠€鏄撴寚寮?/h2>
+      <p>1. 鍏堝湪宸︿晶閫夋嫨绉戠洰鍜屽凡瑙ｉ攣鐭ヨ瘑鐐癸紝鍙互澶氶€夋贩鍚堢粍鍗枫€?/p>
+      <p>2. 璁剧疆闅惧害銆佺湡棰?缁煎悎妯″紡鍜岀瓟棰樻椂闀垮悗鐢熸垚璇曞嵎銆?/p>
+      <p>3. 浜ゅ嵎鍚庤嚜鍔ㄦ壒鏀癸紱閿欓浼氳繘鍏ラ敊棰樻湰锛屼笅涓€杞己鍒舵贩鍏ュ悓绫诲彉寮忋€?/p>
+      <p>4. 绠€鍗曢€氬叧寰?鏄熻В閿佷腑绛夛紝涓瓑寰?鏄熻В閿佸洶闅撅紝鍥伴毦寰?鏄熷苟鐐逛寒鐭ヨ瘑鐐广€?/p>
+      <div class="row"><button class="btn primary" id="closeGuideBtn">寮€濮嬩娇鐢?/button></div>
+    </div>
+  </div>
+  <div class="modal" id="resultModal"><div class="modal-box" id="resultBox"></div></div>
+  <div class="toast" id="toast"></div>
+  <script>
+    const STORE = "flower_exam_tree_v1";
+    const subjects = ["璇枃","鏁板","鑻辫","鐗╃悊","鍖栧","鍘嗗彶","閬撴硶"];
+    const diffName = { easy: "绠€鍗?, medium: "涓瓑", hard: "鍥伴毦" };
+    const diffStar = { easy: 1, medium: 2, hard: 3 };
+    const nextDiff = { easy: "medium", medium: "hard", hard: "hard" };
+    const mistakeTags = ["姒傚康涓嶆竻","瀹￠澶辫","璁＄畻閿欒","鐭ヨ瘑鐩插尯"];
+    const skinDefs = [
+      ["榛樿鑺辨季", ""], ["钖勮嵎鏅ㄥ厜", "eye"], ["鏄熸湀澶滆", "night"]
+    ];
+    const medalDefs = [["鍒濈唤鍕嬬珷",5],["杩炶儨灏戝コ",10],["鏄熸渤瀛﹂湼",20],["涓€冭姳鍐?,35]];
+
+    const graph = buildGraph();
+    const bank = buildBank();
+    let state = load();
+    let currentSubject = state.currentSubject || "鏁板";
+    let selected = new Set((state.selected || []).filter(topicById));
+    let paper = state.paper || null;
+    let qIndex = state.qIndex || 0;
+    let timerId = null;
+
+    function buildGraph() {
+      const out = {};
+      const topicNames = {};
+      subjects.forEach(sub => { out[sub] = []; topicNames[sub] = {}; });
+      const add = (subject, grade, level, name, prereqNames = []) => {
+        const id = `${subject}-${String(out[subject].length + 1).padStart(3, "0")}`;
+        const topic = {
+          id, subject, name, grade, level, layer: out[subject].length,
+          prereqNames,
+          prereq: [],
+          bankTags: ["涓撳睘棰樺簱", "涓€冮鍨?, "鍚岀被鍙樺紡棰?],
+          difficultyBands: ["easy", "medium", "hard"]
+        };
+        out[subject].push(topic);
+        topicNames[subject][name] = id;
+      };
+      const addMany = (subject, grade, level, names, prereqNames = []) => names.forEach(name => add(subject, grade, level, name, prereqNames));
+
+      addMany("鏁板", "涓冨勾绾т笂鍐?, 1, ["鏈夌悊鏁版蹇典笌鍒嗙被","鏁拌酱銆佺浉鍙嶆暟銆佺粷瀵瑰€?,"鏈夌悊鏁板姞鍑忔硶","鏈夌悊鏁颁箻闄ゃ€佷箻鏂硅繍绠?,"鏁村紡鐩稿叧姒傚康","鏁村紡鐨勫姞鍑忚繍绠?,"涓€鍏冧竴娆℃柟绋嬫蹇典笌瑙ｆ硶","鐩寸嚎銆佸皠绾裤€佺嚎娈?,"瑙掔殑璁よ瘑銆佽搴︽崲绠椾笌璁＄畻"]);
+      add("鏁板", "涓冨勾绾т笂鍐屽欢浼?, 2, "涓€鍏冧竴娆℃柟绋嬪疄闄呭簲鐢?, ["涓€鍏冧竴娆℃柟绋嬫蹇典笌瑙ｆ硶"]);
+      addMany("鏁板", "涓冨勾绾т笅鍐?, 1, ["鐩镐氦绾夸笌閭昏ˉ瑙?,"骞宠绾垮垽瀹氫笌鎬ц川","骞虫柟鏍圭珛鏂规牴涓庡疄鏁?,"骞抽潰鐩磋鍧愭爣绯诲熀纭€","浜屽厓涓€娆℃柟绋嬬粍瑙ｆ硶","涓€鍏冧竴娆′笉绛夊紡涓庝笉绛夊紡缁?,"鏁版嵁鏀堕泦涓庣粺璁″浘琛?]);
+      add("鏁板", "涓冨勾绾т笅鍐?, 2, "鐐圭殑鍧愭爣鍙樻崲涓庝綅缃垽鏂?, ["骞抽潰鐩磋鍧愭爣绯诲熀纭€"]);
+      add("鏁板", "涓冨勾绾т笅鍐?, 2, "浜屽厓涓€娆℃柟绋嬬粍瀹為檯搴旂敤", ["浜屽厓涓€娆℃柟绋嬬粍瑙ｆ硶"]);
+      add("鏁板", "鍏勾绾т笂鍐?, 2, "涓夎褰笁杈瑰叧绯汇€佸唴瑙掑拰", ["瑙掔殑璁よ瘑銆佽搴︽崲绠椾笌璁＄畻"]);
+      add("鏁板", "鍏勾绾т笂鍐?, 2, "鍏ㄧ瓑涓夎褰㈠垽瀹氫笌鎬ц川", ["涓夎褰笁杈瑰叧绯汇€佸唴瑙掑拰"]);
+      add("鏁板", "鍏勾绾т笂鍐?, 2, "杞村绉般€佺瓑鑵颁笁瑙掑舰", ["鍏ㄧ瓑涓夎褰㈠垽瀹氫笌鎬ц川"]);
+      add("鏁板", "鍏勾绾т笂鍐?, 2, "鏁村紡涔樻硶涓庡洜寮忓垎瑙?, ["鏁村紡鐨勫姞鍑忚繍绠?]);
+      add("鏁板", "鍏勾绾т笂鍐?, 2, "鍒嗗紡姒傚康涓庤繍绠?, ["鏁村紡涔樻硶涓庡洜寮忓垎瑙?]);
+      add("鏁板", "鍏勾绾т笂鍐?, 3, "鍒嗗紡鏂圭▼瑙ｆ硶涓庡簲鐢?, ["鍒嗗紡姒傚康涓庤繍绠?]);
+      add("鏁板", "鍏勾绾т笅鍐?, 2, "浜屾鏍瑰紡鍖栫畝涓庤繍绠?, ["骞虫柟鏍圭珛鏂规牴涓庡疄鏁?]);
+      add("鏁板", "鍏勾绾т笅鍐?, 2, "鍕捐偂瀹氱悊鍙婇€嗗畾鐞?, ["涓夎褰笁杈瑰叧绯汇€佸唴瑙掑拰"]);
+      add("鏁板", "鍏勾绾т笅鍐?, 2, "骞宠鍥涜竟褰㈡€ц川涓庡垽瀹?, ["鍏ㄧ瓑涓夎褰㈠垽瀹氫笌鎬ц川"]);
+      add("鏁板", "鍏勾绾т笅鍐?, 2, "涓€娆″嚱鏁板浘鍍忎笌鎬ц川", ["骞抽潰鐩磋鍧愭爣绯诲熀纭€"]);
+      add("鏁板", "鍏勾绾т笅鍐?, 3, "鐭╁舰銆佽彵褰€佹鏂瑰舰", ["骞宠鍥涜竟褰㈡€ц川涓庡垽瀹?]);
+      add("鏁板", "鍏勾绾т笅鍐?, 3, "涓€娆″嚱鏁扮患鍚堝簲鐢?, ["涓€娆″嚱鏁板浘鍍忎笌鎬ц川"]);
+      add("鏁板", "涔濆勾绾т笂鍐?, 3, "涓€鍏冧簩娆℃柟绋嬭В娉?, ["涓€鍏冧竴娆℃柟绋嬫蹇典笌瑙ｆ硶"]);
+      add("鏁板", "涔濆勾绾т笂鍐?, 3, "涓€鍏冧簩娆℃柟绋嬫牴鐨勫垽鍒紡涓庡疄闄呭簲鐢?, ["涓€鍏冧簩娆℃柟绋嬭В娉?]);
+      add("鏁板", "涔濆勾绾т笂鍐?, 3, "鏃嬭浆銆佷腑蹇冨绉?, ["杞村绉般€佺瓑鑵颁笁瑙掑舰"]);
+      add("鏁板", "涔濆勾绾т笂鍐?, 3, "鍦嗙殑鍩烘湰鎬ц川銆佸渾蹇冭涓庡渾鍛ㄨ", ["瑙掔殑璁よ瘑銆佽搴︽崲绠椾笌璁＄畻"]);
+      add("鏁板", "涔濆勾绾т笂鍐?, 3, "鐐广€佺洿绾裤€佸渾鐨勪綅缃叧绯?, ["鍦嗙殑鍩烘湰鎬ц川銆佸渾蹇冭涓庡渾鍛ㄨ"]);
+      add("鏁板", "涔濆勾绾т笂鍐?, 3, "姒傜巼鍒濇", ["鏁版嵁鏀堕泦涓庣粺璁″浘琛?]);
+      add("鏁板", "涔濆勾绾т笅鍐?, 3, "鍙嶆瘮渚嬪嚱鏁板浘鍍忎笌鎬ц川", ["涓€娆″嚱鏁板浘鍍忎笌鎬ц川"]);
+      add("鏁板", "涔濆勾绾т笅鍐?, 3, "鐩镐技涓夎褰㈠垽瀹氫笌鎬ц川", ["鍏ㄧ瓑涓夎褰㈠垽瀹氫笌鎬ц川"]);
+      add("鏁板", "涔濆勾绾т笅鍐?, 3, "閿愯涓夎鍑芥暟鍩虹", ["鍕捐偂瀹氱悊鍙婇€嗗畾鐞?]);
+      add("鏁板", "涔濆勾绾т笅鍐?, 3, "瑙ｇ洿瑙掍笁瑙掑舰鍙婂疄闄呭簲鐢?, ["閿愯涓夎鍑芥暟鍩虹"]);
+      add("鏁板", "涔濆勾绾т笅鍐?, 3, "浜屾鍑芥暟鍥惧儚涓庡熀纭€鎬ц川", ["涓€娆″嚱鏁板浘鍍忎笌鎬ц川","涓€鍏冧簩娆℃柟绋嬭В娉?]);
+      add("鏁板", "涔濆勾绾т笅鍐?, 3, "浜屾鍑芥暟缁煎悎鍘嬭酱搴旂敤", ["浜屾鍑芥暟鍥惧儚涓庡熀纭€鎬ц川"]);
+
+      addMany("璇枃", "涓冨勾绾т笂鍐?, 1, ["瀛楅煶瀛楀舰涓庤瘝璇鲸鏋?,"鐥呭彞涓庢爣鐐硅繍鐢?,"鏂囧甯歌瘑涓庡悕钁楀璇?,"璇惧唴鐜颁唬鏂囧熀纭€闃呰","璇惧唴鍙よ瘲璇嶈儗璇电悊瑙?,"璇惧唴鏂囪█鏂囧瓧璇嶅熀纭€"]);
+      add("璇枃", "涓冨勾绾т笂鍐?, 2, "鐜颁唬鏂囬槄璇荤瓟棰樻妧宸?, ["璇惧唴鐜颁唬鏂囧熀纭€闃呰"]);
+      add("璇枃", "涓冨勾绾т笂鍐?, 2, "鏂囪█鏂囩炕璇戜笌鍐呭鐞嗚В", ["璇惧唴鏂囪█鏂囧瓧璇嶅熀纭€"]);
+      addMany("璇枃", "涓冨勾绾т笅鍐?, 1, ["鎴愯杩愮敤涓庢嫇灞曞瓧璇?,"璇彞琛旀帴涓庡彞寮忎豢鍐?,"璇惧唴鍙よ瘲璇嶈祻鏋?,"璇惧唴鏂囪█鏂囬噸鐐瑰瓧璇?]);
+      add("璇枃", "涓冨勾绾т笅鍐?, 2, "鏂囪█鏂囧姣旈槄璇?, ["璇惧唴鏂囪█鏂囧瓧璇嶅熀纭€","璇惧唴鏂囪█鏂囬噸鐐瑰瓧璇?]);
+      add("璇枃", "涓冨勾绾т笅鍐?, 2, "璁板彊鏂囬槄璇讳笓椤?, ["鐜颁唬鏂囬槄璇荤瓟棰樻妧宸?]);
+      add("璇枃", "鍏勾绾т笂鍐?, 2, "璇存槑鏂囧熀纭€涓庤鏄庢柟娉?, ["璁板彊鏂囬槄璇讳笓椤?]);
+      add("璇枃", "鍏勾绾т笂鍐?, 2, "鍙よ瘲璇嶆繁搴﹂壌璧?, ["璇惧唴鍙よ瘲璇嶈祻鏋?]);
+      add("璇枃", "鍏勾绾т笂鍐?, 2, "璇惧娴呮槗鏂囪█鏂囬槄璇?, ["璇惧唴鏂囪█鏂囬噸鐐瑰瓧璇?]);
+      add("璇枃", "鍏勾绾т笂鍐?, 3, "璇存槑鏂囩患鍚堥槄璇诲簲鐢?, ["璇存槑鏂囧熀纭€涓庤鏄庢柟娉?]);
+      add("璇枃", "鍏勾绾т笅鍐?, 2, "璁鏂囧熀纭€锛堣鐐广€佽鎹€佽璇侊級", ["璁板彊鏂囬槄璇讳笓椤?]);
+      add("璇枃", "鍏勾绾т笅鍐?, 2, "璇惧唴鍙よ瘲鏂囩患鍚堢悊瑙ｉ粯鍐?, ["璇惧唴鍙よ瘲璇嶈祻鏋?,"璇惧唴鏂囪█鏂囬噸鐐瑰瓧璇?]);
+      add("璇枃", "鍏勾绾т笅鍐?, 3, "璁鏂囬槄璇讳笓椤硅缁?, ["璁鏂囧熀纭€锛堣鐐广€佽鎹€佽璇侊級"]);
+      addMany("璇枃", "涔濆勾绾у叏鍐?, 3, ["涓€冨瓧璇嶆垚璇梾鍙ョ患鍚堣缁?,"鍙よ瘲鏂囬粯鍐欎笌閴磋祻缁煎悎棰樺瀷","璇惧唴澶栨枃瑷€鏂囧姣旈槄璇?,"涓夊ぇ鏂囦綋缁煎悎闃呰","涓€冨悕钁楄€冪偣","缁煎悎鎬у涔犻鍨?], ["璁鏂囬槄璇讳笓椤硅缁?]);
+
+      addMany("鑻辫", "涓冨勾绾т笂鍐?, 1, ["涓婂唽鏍稿績璇嶆眹鐭","鍚嶈瘝浠ｈ瘝鍩虹","涓€鑸幇鍦ㄦ椂鍩虹","鍩虹鎯呮櫙浜ら檯"]);
+      add("鑻辫", "涓冨勾绾т笂鍐?, 2, "涓€鑸幇鍦ㄦ椂缁煎悎杩愮敤", ["涓€鑸幇鍦ㄦ椂鍩虹"]);
+      addMany("鑻辫", "涓冨勾绾т笅鍐?, 1, ["涓嬪唽鏍稿績璇嶆眹鐭","鎯呮€佸姩璇嶄笌浠嬭瘝","鐜板湪杩涜鏃?涓€鑸繃鍘绘椂鍩虹"]);
+      add("鑻辫", "涓冨勾绾т笅鍐?, 2, "鏃舵€佽鲸鏋愯繍鐢?, ["涓€鑸幇鍦ㄦ椂缁煎悎杩愮敤","鐜板湪杩涜鏃?涓€鑸繃鍘绘椂鍩虹"]);
+      add("鑻辫", "涓冨勾绾т笅鍐?, 2, "绠€鍗曞彞鍨嬭浆鎹?, ["鍚嶈瘝浠ｈ瘝鍩虹","鍩虹鎯呮櫙浜ら檯"]);
+      add("鑻辫", "鍏勾绾т笂鍐?, 2, "鏈唽鏍稿績璇嶆眹涓庡浐瀹氭惌閰?, ["涓婂唽鏍稿績璇嶆眹鐭","涓嬪唽鏍稿績璇嶆眹鐭"]);
+      add("鑻辫", "鍏勾绾т笂鍐?, 2, "褰㈠璇嶅壇璇嶆瘮杈冪骇鏈€楂樼骇", ["鍚嶈瘝浠ｈ瘝鍩虹"]);
+      add("鑻辫", "鍏勾绾т笂鍐?, 2, "涓€鑸皢鏉ユ椂&杩囧幓杩涜鏃跺熀纭€", ["鏃舵€佽鲸鏋愯繍鐢?]);
+      add("鑻辫", "鍏勾绾т笂鍐?, 3, "澶氭椂鎬佹贩鍚堣鲸鏋愪笌鍙ュ瀷缁煎悎杩愮敤", ["涓€鑸皢鏉ユ椂&杩囧幓杩涜鏃跺熀纭€","绠€鍗曞彞鍨嬭浆鎹?]);
+      add("鑻辫", "鍏勾绾т笅鍐?, 2, "鏈唽鏍稿績璇嶆眹鐭", ["鏈唽鏍稿績璇嶆眹涓庡浐瀹氭惌閰?]);
+      add("鑻辫", "鍏勾绾т笅鍐?, 2, "鐘惰浠庡彞涓庨潪璋撹鍔ㄨ瘝鍏ラ棬", ["绠€鍗曞彞鍨嬭浆鎹?]);
+      add("鑻辫", "鍏勾绾т笅鍐?, 3, "瀹屽舰濉┖鍩虹", ["鏈唽鏍稿績璇嶆眹鐭","鐘惰浠庡彞涓庨潪璋撹鍔ㄨ瘝鍏ラ棬"]);
+      add("鑻辫", "鍏勾绾т笅鍐?, 3, "闃呰鐞嗚В鍩虹", ["鏈唽鏍稿績璇嶆眹鐭","鐘惰浠庡彞涓庨潪璋撹鍔ㄨ瘝鍏ラ棬"]);
+      addMany("鑻辫", "涔濆勾绾у叏鍐?, 3, ["涓€冨ぇ绾茶瘝姹囩煭璇?,"鍒濅腑鍏ぇ鏃舵€佺患鍚堣鲸鏋?,"瀹捐浠庡彞&鐘惰浠庡彞涓撻」","瀹屽舰濉┖缁煎悎棰樺瀷","闃呰涓庝换鍔″瀷闃呰","涔﹂潰琛ㄨ揪鍩虹鍙ュ瀷"], ["澶氭椂鎬佹贩鍚堣鲸鏋愪笌鍙ュ瀷缁煎悎杩愮敤"]);
+
+      addMany("鐗╃悊", "鍏勾绾т笂鍐?, 1, ["鏈烘杩愬姩","澹扮幇璞?,"鍏夌殑鐩寸嚎浼犳挱涓庡弽灏?,"鐗╂€佸彉鍖?]);
+      add("鐗╃悊", "鍏勾绾т笂鍐?, 2, "鍏夌殑鎶樺皠涓庨€忛暅鎴愬儚", ["鍏夌殑鐩寸嚎浼犳挱涓庡弽灏?]);
+      addMany("鐗╃悊", "鍏勾绾т笅鍐?, 2, ["璐ㄩ噺涓庡瘑搴?,"鍔?寮瑰姏/閲嶅姏","浜屽姏骞宠　涓庢懇鎿﹀姏","鍥轰綋鍘嬪己"], ["鏈烘杩愬姩"]);
+      add("鐗╃悊", "鍏勾绾т笅鍐?, 3, "娑蹭綋鍘嬪己涓庡ぇ姘斿帇寮?, ["鍥轰綋鍘嬪己"]);
+      add("鐗╃悊", "鍏勾绾т笅鍐?, 3, "娴姏璁＄畻", ["娑蹭綋鍘嬪己涓庡ぇ姘斿帇寮?]);
+      add("鐗╃悊", "鍏勾绾т笅鍐?, 3, "鏉犳潌涓庢粦杞?, ["鍔?寮瑰姏/閲嶅姏"]);
+      add("鐗╃悊", "鍏勾绾т笅鍐?, 3, "鍔熶笌鍔熺巼鍙婃満姊版晥鐜?, ["鏉犳潌涓庢粦杞?]);
+      addMany("鐗╃悊", "涔濆勾绾у叏鍐?, 3, ["鐢佃矾涓插苟鑱旇瘑鍒?,"鐢垫祦鐢靛帇鐢甸樆","娆у瀹氬緥","鐢靛姛鐜囦笌鐢靛姛","瀹跺涵鐢佃矾涓庡畨鍏ㄧ敤鐢?,"鐢典笌纾?,"鍐呰兘涓庢瘮鐑"], ["鍔熶笌鍔熺巼鍙婃満姊版晥鐜?]);
+
+      addMany("鍖栧", "涔濆勾绾т笂鍐?, 1, ["鐗╄川鏋勬垚","绌烘皵涓庢哀姘?,"姘寸殑鐩稿叧鐭ヨ瘑","鍏冪礌鍖栧寮忎笌鍖栧悎浠?]);
+      add("鍖栧", "涔濆勾绾т笂鍐?, 2, "鍖栧鏂圭▼寮忎功鍐欎笌璁＄畻", ["鍏冪礌鍖栧寮忎笌鍖栧悎浠?]);
+      add("鍖栧", "涔濆勾绾т笂鍐?, 2, "纰冲拰纰崇殑姘у寲鐗?, ["绌烘皵涓庢哀姘?]);
+      addMany("鍖栧", "涔濆勾绾т笅鍐?, 3, ["閲戝睘鏉愭枡涓庨噾灞炴椿鍔ㄦ€?,"閲戝睘缁煎悎璁＄畻涓庡疄楠?,"婧舵恫涓庢憾璐ㄨ川閲忓垎鏁?,"閰哥⒈鐩愬熀纭€","閰哥⒈鐩愮患鍚堟帹鏂笌璁＄畻","鍖栧涓庣敓娲荤浉鍏崇煡璇嗙偣"], ["鍖栧鏂圭▼寮忎功鍐欎笌璁＄畻"]);
+
+      addMany("鍘嗗彶", "涓冨勾绾т笂鍐?, 1, ["鍙插墠鏃舵湡","澶忓晢鍛ㄥ巻鍙?,"绉︽眽澶т竴缁熺帇鏈?]);
+      add("鍘嗗彶", "涓冨勾绾т笂鍐?, 2, "涓夊浗涓ゆ檵鍗楀寳鏈濆巻鍙?, ["绉︽眽澶т竴缁熺帇鏈?]);
+      addMany("鍘嗗彶", "涓冨勾绾т笅鍐?, 1, ["闅嬪攼鍘嗗彶","瀹嬪厓鍘嗗彶"]);
+      add("鍘嗗彶", "涓冨勾绾т笅鍐?, 2, "鏄庢竻鍘嗗彶", ["瀹嬪厓鍘嗗彶"]);
+      addMany("鍘嗗彶", "鍏勾绾?, 2, ["鍒楀己渚靛崕鎴樹簤","杩戜唬鍖栨帰绱?,"鏂版皯涓讳富涔夐潻鍛藉叴璧?], ["鏄庢竻鍘嗗彶"]);
+      addMany("鍘嗗彶", "鍏勾绾?, 3, ["鎶楁棩鎴樹簤涓庤В鏀炬垬浜?,"鏂颁腑鍥藉彂灞曞巻绋?], ["鏂版皯涓讳富涔夐潻鍛藉叴璧?]);
+      addMany("鍘嗗彶", "涔濆勾绾?, 3, ["鍙や唬浜氶潪涓庢娲叉枃鏄?,"杩戜唬鍖栧紑绔?,"璧勬湰涓讳箟鍒跺害纭珛","涓ゆ宸ヤ笟闈╁懡","涓ゆ涓栫晫澶ф垬涓庢垬鍚庢牸灞€","鐜颁唬绉戞妧涓庡叏鐞冨寲"], ["鏂颁腑鍥藉彂灞曞巻绋?]);
+
+      addMany("閬撴硶", "涓冨勾绾?, 1, ["涓鎴愰暱涓庤嚜鎴戣鐭?,"鍙嬭皧涓庡笀鐢熶翰鎯?,"闈掓槬鎯呯华涓庢儏鎰?,"闆嗕綋鐢熸椿涓庤鍒?]);
+      add("閬撴硶", "涓冨勾绾?, 2, "娉曞緥鍩虹涓庢湭鎴愬勾浜虹壒娈婁繚鎶?, ["闆嗕綋鐢熸椿涓庤鍒?]);
+      addMany("閬撴硶", "鍏勾绾?, 2, ["绀句細瑙勫垯涓庣綉缁滅敓娲?,"鍥藉鍒╃泭涓庡浗瀹跺畨鍏?,"瀹硶鍩虹涓庡叕姘戞潈鍒╀箟鍔?,"鍥藉鏈烘瀯"], ["娉曞緥鍩虹涓庢湭鎴愬勾浜虹壒娈婁繚鎶?]);
+      add("閬撴硶", "鍏勾绾?, 3, "杩濇硶鐘姜涓庝緷娉曞姙浜?, ["娉曞緥鍩虹涓庢湭鎴愬勾浜虹壒娈婁繚鎶?]);
+      addMany("閬撴硶", "涔濆勾绾?, 3, ["鏀归潻寮€鏀句笌鍒涙柊鍙戝睍","姘戜富涓庢硶娌?,"涓崕鏂囧寲涓庣敓鎬佹枃鏄?,"姘戞棌鍥㈢粨涓庝腑鍥芥ⅵ","鍥介檯鏍煎眬涓庝腑鍥藉彂灞?], ["杩濇硶鐘姜涓庝緷娉曞姙浜?]);
+
+      subjects.forEach(subject => {
+        out[subject].forEach(topic => {
+          topic.prereq = topic.prereqNames.map(name => topicNames[subject][name]).filter(Boolean);
+        });
+      });
+      return out;
+    }
+
+    function buildBank() {
+      const out = [];
+      subjects.forEach(sub => graph[sub].forEach(topic => {
+        ["easy","medium","hard"].forEach((diff, di) => {
+          for (let n = 1; n <= 5; n++) out.push(makeQuestion(sub, topic, diff, n, di));
+        });
+      }));
+      return out;
+    }
+
+    function makeQuestion(sub, topic, diff, n, di) {
+      const multi = n % 5 === 0;
+      const score = diff === "easy" ? 3 : diff === "medium" ? 4 : 5;
+      const source = n % 2 ? "骞垮窞涓€冪湡棰橀鏍? : "骞垮窞涓€冨彉寮忛";
+      const common = { id: `${topic.id}-${diff}-${n}`, subject: sub, topicId: topic.id, topic: topic.name, diff, score, type: multi ? "澶氶€? : "鍗曢€?, source };
+      const maps = {
+        "鏁板": [`鑻ヤ竴娆″嚱鏁?y=${n+1}x+${di+2}锛屽畠涓?y 杞翠氦鐐圭旱鍧愭爣鏄紵`, ["1", String(di+2), String(n+1), String(n+di+3)], [String(di+2)], "浠?x=0锛寉 杞翠氦鐐圭旱鍧愭爣灏辨槸甯告暟椤广€?],
+        "鐗╃悊": [`灏忚溅 ${n+4}s 琛岄┒ ${(n+4)*(di+3)}m锛屽钩鍧囬€熷害鏄紵`, [`${di+3}m/s`, `${n+4}m/s`, `${di+5}m/s`, `${n}m/s`], [`${di+3}m/s`], "閫熷害=璺▼梅鏃堕棿銆?],
+        "鑻辫": [`Choose the best answer: She ____ Guangzhou since 2024.`, ["has lived","lived","is living","live"], ["has lived"], "since 寮曞杩囧幓鏃堕棿鐐癸紝甯镐笌鐜板湪瀹屾垚鏃惰繛鐢ㄣ€?],
+        "璇枃": [`涓嬪垪鍏充簬鈥?{topic.name}鈥濈被棰樼洰鐨勭瓟棰樻柟娉曪紝鏈€鎭板綋鐨勬槸锛焋, ["鍏堟姄鍏抽敭璇嶅啀缁撳悎璇","鍙湅棰樼洰闀垮害","瀹屽叏鍑劅瑙?,"蹇界暐鏂囨湰鍐呭"], ["鍏堟姄鍏抽敭璇嶅啀缁撳悎璇"], "璇枃闃呰棰樿鍥炲埌鏂囨湰锛岀粨鍚堣澧冧綔绛斻€?],
+        "鍖栧": [`鍏充簬${topic.name}锛屼笅鍒楄娉曟纭殑鏄紵`, ["鍖栧鍙樺寲甯镐即闅忔柊鐗╄川鐢熸垚","鐗╃悊鍙樺寲涓€瀹氱敓鎴愭柊鐗╄川","姘ф皵涓嶈兘鏀寔鐕冪儳","绌烘皵鍙湁姘ф皵"], ["鍖栧鍙樺寲甯镐即闅忔柊鐗╄川鐢熸垚"], "鍖栧鍙樺寲鐨勬牳蹇冪壒寰佹槸鏈夋柊鐗╄川鐢熸垚銆?],
+        "鍘嗗彶": [`瀛︿範鈥?{topic.name}鈥濇椂锛屽垎鏋愬巻鍙蹭簨浠堕鍏堝簲鍏虫敞锛焋, ["鑳屾櫙銆佺粡杩囥€佸奖鍝?,"瀛椾綋澶у皬","鎻掑浘棰滆壊","椤电爜"], ["鑳屾櫙銆佺粡杩囥€佸奖鍝?], "鍘嗗彶浜嬩欢鍒嗘瀽閫氬父浠庤儗鏅€佽繃绋嬨€佺粨鏋滃拰褰卞搷鍏ユ墜銆?],
+        "閬撴硶": [`闈㈠鈥?{topic.name}鈥濇儏澧冿紝姝ｇ‘鍋氭硶鏄紵`, ["渚濇硶鑷緥骞舵壙鎷呰矗浠?,"鍙【鑷繁鏂逛究","閫冮伩瑙勫垯绾︽潫","浼犳挱鏈粡璇佸疄淇℃伅"], ["渚濇硶鑷緥骞舵壙鎷呰矗浠?], "閬撴硶鎯呭棰樿缁撳悎娉曞緥銆佽鍒欍€佽矗浠讳綔鍒ゆ柇銆?]
+      };
+      const m = maps[sub];
+      if (multi) {
+        return { ...common, prompt: `澶氶€夛細${m[0]}锛堥€夊嚭鎵€鏈夋纭」锛塦, options: [...m[1], "璁ょ湡瀹￠銆佽仈绯昏€冪偣"], answer: [m[2][0], "璁ょ湡瀹￠銆佽仈绯昏€冪偣"], explain: m[3] + " 澶氶€夐瑕侀€夊叏涓斾笉澶氶€夈€?, score: score + 1 };
+      }
+      return { ...common, prompt: m[0], options: m[1], answer: m[2], explain: m[3] };
+    }
+
+    function defaults() {
+      const unlocked = {};
+      subjects.forEach(s => graph[s].filter(t => t.level === 1).forEach(t => {
+        unlocked[t.id] = { easy: true, medium: false, hard: false, lit: false };
+      }));
+      return {
+        currentSubject: "鏁板", selected: [], unlocked, stars: 0, mistakes: [], history: [],
+        checkins: [], settings: { font: 100, line: 155, visual: "", focusGuard: true }, paper: null, qIndex: 0, first: true
+      };
+    }
+    function load() { try { return { ...defaults(), ...(JSON.parse(localStorage.getItem(STORE)) || {}) }; } catch { return defaults(); } }
+    function save() {
+      state.currentSubject = currentSubject;
+      state.selected = [...selected];
+      state.paper = paper;
+      state.qIndex = qIndex;
+      localStorage.setItem(STORE, JSON.stringify(state));
+    }
+    const $ = id => document.getElementById(id);
+    const today = () => new Date().toISOString().slice(0,10);
+
+    function renderAll() {
+      applySettings(); renderSubjects(); renderTree(); renderStats(); renderSelected(); renderAnswerCard(); renderMistakes(); renderMe();
+    }
+    function renderSubjects() {
+      $("subjectList").innerHTML = subjects.map(s => `<button class="subject-btn ${s===currentSubject?"active":""}" data-sub="${s}"><span>${icon(s)} ${s}</span><span>${subjectProgress(s)}%</span></button>`).join("");
+      document.querySelectorAll(".subject-btn").forEach(b => b.onclick = () => { currentSubject = b.dataset.sub; renderAll(); });
+      $("mistakeSubject").innerHTML = `<option value="">鍏ㄩ儴绉戠洰</option>` + subjects.map(s => `<option>${s}</option>`).join("");
+    }
+    function renderTree() {
+      let lastGroup = "";
+      const levelName = { 1: "涓€绾у熀纭€灞?, 2: "浜岀骇杩涢樁灞?, 3: "涓夌骇缁煎悎/閲嶉毦鐐瑰眰" };
+      $("tree").innerHTML = graph[currentSubject].map(t => {
+        const st = getTopic(t.id);
+        const locked = !isTopicOpen(t);
+        const sel = selected.has(t.id);
+        const group = `${t.grade} 路 ${levelName[t.level]}`;
+        const groupTitle = group === lastGroup ? "" : `<div class="layer-title">${group}</div>`;
+        lastGroup = group;
+        const prereq = t.prereqNames.length ? `鍓嶇疆锛?{t.prereqNames.join("銆?)}` : "鍒濆榛樿瑙ｉ攣";
+        return `${groupTitle}<div class="tree-layer"><button class="node level-${t.level} ${locked?"locked":st.lit?"lit":"open"} ${sel?"selected":""}" data-id="${t.id}" ${locked?"disabled":""}>
+          <b>${st.lit ? "馃挅" : locked ? "馃敀" : "馃尫"} ${t.name}</b><br>
+          <span class="muted">${levelName[t.level]} 路 ${difficultyStatus(st)}</span><br>
+          <span class="muted">${prereq}</span>
+        </button></div>`;
+      }).join("");
+      document.querySelectorAll(".node:not(.locked)").forEach(n => n.onclick = () => { selected.has(n.dataset.id) ? selected.delete(n.dataset.id) : selected.add(n.dataset.id); save(); renderAll(); });
+    }
+    function renderSelected() {
+      $("selectedCount").textContent = selected.size;
+      $("selectedTags").innerHTML = [...selected].map(id => `<span class="badge-pill">${topicById(id).subject} 路 ${topicById(id).name}</span>`).join("") || `<span class="muted">杩樻病鏈夐€夋嫨鐭ヨ瘑鐐?/span>`;
+    }
+    function renderStats() {
+      const all = subjects.flatMap(s => graph[s]);
+      $("stars").textContent = state.stars;
+      $("wrongCount").textContent = state.mistakes.length;
+      $("openCount").textContent = all.filter(isTopicOpen).length;
+      $("litCount").textContent = all.filter(t => getTopic(t.id).lit).length;
+    }
+    function renderAnswerCard() {
+      if (!paper) { $("answerCard").innerHTML = `<span class="muted">鏆傛棤璇曞嵎</span>`; return; }
+      $("answerCard").innerHTML = paper.questions.map((q,i) => {
+        const ans = paper.answers[q.uid];
+        const res = paper.result?.items?.find(x => x.uid === q.uid);
+        return `<button class="answer-dot ${ans?.length?"done":""} ${paper.marks[q.uid]?"marked":""} ${res?res.correct?"right":"wrong":""}" data-jump="${i}">${i+1}</button>`;
+      }).join("");
+      document.querySelectorAll("[data-jump]").forEach(b => b.onclick = () => { qIndex = Number(b.dataset.jump); save(); showTab("exam"); renderQuestion(); });
+    }
+    function renderQuestion() {
+      if (!paper) { $("questionBox").innerHTML = `<p class="muted">璇峰厛鐢熸垚璇曞嵎銆?/p>`; return; }
+      document.body.classList.add("exam-mode");
+      const q = paper.questions[qIndex];
+      const ans = paper.answers[q.uid] || [];
+      $("paperTitle").textContent = `${q.subject} 路 ${q.topic}鎸戞垬`;
+      $("paperMeta").textContent = `${paper.total}鍒?路 ${paper.mode === "real" ? "鐪熼妯″紡" : "缁煎悎缁冧範"}`;
+      $("progressText").textContent = `${qIndex + 1}/${paper.questions.length}`;
+      $("focusWarn").textContent = `涓撴敞璁板綍 ${paper.focusEvents?.length || 0}`;
+      $("examBar").style.width = `${Math.round((Object.values(paper.answers).filter(a => a.length).length / paper.questions.length) * 100)}%`;
+      $("markBtn").classList.toggle("marked", !!paper.marks[q.uid]);
+      $("questionBox").innerHTML = `<div class="question">
+        <div class="row"><span class="badge-pill">${q.type}</span><span class="badge-pill">${q.score}鍒?/span><span class="badge-pill">${diffName[q.diff]}</span><span class="badge-pill">鑰冪偣锛?{q.topic}</span><span class="badge-pill">${q.source}</span></div>
+        <div class="q-title">${qIndex + 1}. ${q.prompt}</div>
+        <div class="options">${q.options.map((o,i) => `<label class="opt ${ans.includes(o)?"chosen":""}"><input type="${q.type==="澶氶€??"checkbox":"radio"}" name="opt" value="${escapeHtml(o)}" ${ans.includes(o)?"checked":""}> <b>${String.fromCharCode(65+i)}.</b> ${escapeHtml(o)}</label>`).join("")}</div>
+        ${paper.result ? `<button class="btn" style="margin-top:12px" onclick="toggleAnalysis()">灞曞紑/鏀惰捣瑙ｆ瀽</button><div class="analysis" id="analysis"><b>${paper.result.items.find(x=>x.uid===q.uid)?.correct?"姝ｇ‘":"閿欒"}</b> 路 绛旀锛?{q.answer.join("銆?)}<br>${q.explain}</div>` : ""}
+      </div>`;
+      document.querySelectorAll(".opt").forEach(label => label.onclick = () => setTimeout(() => collectAnswer(q), 0));
+      renderAnswerCard(); save();
+    }
+    window.toggleAnalysis = () => $("analysis")?.classList.toggle("show");
+    function collectAnswer(q) {
+      paper.answers[q.uid] = [...document.querySelectorAll("input[name='opt']:checked")].map(x => x.value);
+      save(); renderQuestion();
+    }
+    function buildPaper() {
+      if (!selected.size) return toast("璇峰厛閫夋嫨鑷冲皯涓€涓凡瑙ｉ攣鐭ヨ瘑鐐广€?);
+      selected = new Set([...selected].filter(id => {
+        const topic = topicById(id);
+        return topic && isTopicOpen(topic);
+      }));
+      if (!selected.size) return toast("宸茶繃婊ら攣瀹氱煡璇嗙偣锛岃閲嶆柊閫夋嫨鍙寫鎴樿妭鐐广€?);
+      const diff = $("difficulty").value;
+      const mode = $("mode").value;
+      const chosenTopics = [...selected].map(topicById);
+      const questions = [];
+      const prevMistakes = state.mistakes.slice().sort((a,b)=>b.count-a.count).slice(0,5);
+      prevMistakes.forEach(m => {
+        const source = bank.find(q => q.topicId === m.topicId && q.type === m.type) || bank.find(q => q.topicId === m.topicId);
+        if (source) questions.push({ ...source, uid: "v-" + source.id + "-" + questions.length, prompt: "銆愰敊棰樺彉寮忋€? + source.prompt, source: "閿欓鍚岀被鍙樺紡" });
+      });
+      let pool = bank.filter(q => selected.has(q.topicId) && q.diff === diff);
+      if (mode === "real") pool = pool.filter(q => q.source.includes("鐪熼")).concat(pool);
+      let i = 0;
+      while (questions.length < 26 && pool.length) {
+        const item = pool[i % pool.length];
+        questions.push({ ...item, uid: item.id + "-" + questions.length });
+        i++;
+      }
+      let total = questions.reduce((s,q)=>s+q.score,0);
+      questions.forEach(q => q.score = Math.max(1, Math.round(q.score * 100 / total)));
+      const delta = 100 - questions.reduce((s,q)=>s+q.score,0);
+      questions[0].score += delta;
+      paper = { created: Date.now(), diff, mode, timeMode: $("timeMode").value, topics: chosenTopics.map(t=>t.id), questions, answers: {}, marks: {}, result: null, total: 100, start: Date.now(), seconds: timeLimit($("timeMode").value), focusEvents: [] };
+      qIndex = 0; save(); showTab("exam"); startTimer(); renderQuestion(); toast("璇曞嵎宸茬敓鎴愶紝绛旀浼氬疄鏃朵繚瀛樸€?);
+      enterFocusGuard();
+    }
+    function timeLimit(mode) { return mode === "standard" ? 7200 : mode === "limit" ? 1800 : 0; }
+    function startTimer() {
+      clearInterval(timerId);
+      timerId = setInterval(() => {
+        if (!paper) return;
+        if (!paper.seconds) { $("timer").textContent = "鑷敱缁冧範"; return; }
+        const used = Math.floor((Date.now() - paper.start) / 1000);
+        const left = Math.max(0, paper.seconds - used);
+        $("timer").textContent = `${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
+        if (left <= 0 && !paper.result) submitPaper();
+      }, 500);
+    }
+    function submitPaper() {
+      if (!paper || paper.result) return;
+      if (!confirm("纭畾浜ゅ嵎鍚楋紵浜ゅ嵎鍚庝細绔嬪嵆鎵规敼銆?)) return;
+      const items = paper.questions.map(q => {
+        const ans = (paper.answers[q.uid] || []).slice().sort();
+        const right = q.answer.slice().sort();
+        const correct = JSON.stringify(ans) === JSON.stringify(right);
+        return { uid: q.uid, correct, score: correct ? q.score : 0 };
+      });
+      const score = items.reduce((s,x)=>s+x.score,0);
+      paper.result = { score, items, at: Date.now() };
+      const wrongs = paper.questions.filter(q => !items.find(x=>x.uid===q.uid).correct);
+      wrongs.forEach(addMistake);
+      const allWrongVariantsRight = !paper.questions.some(q => q.source === "閿欓鍚岀被鍙樺紡" && !items.find(x=>x.uid===q.uid).correct);
+      const pass = score >= 90 && allWrongVariantsRight;
+      if (pass) passTopics(); else failPetal();
+      state.history.unshift({ date: today(), score, diff: paper.diff, count: paper.questions.length, pass, focusEvents: paper.focusEvents?.length || 0 });
+      save(); renderAll(); renderQuestion(); showResult(score, pass);
+      exitFocusGuard();
+    }
+    function passTopics() {
+      paper.topics.forEach(id => {
+        const st = getTopic(id);
+        state.stars += diffStar[paper.diff];
+        if (paper.diff === "hard") { st.lit = true; unlockDependents(id); flower(); }
+        else st[nextDiff[paper.diff]] = true;
+      });
+    }
+    function unlockDependents(id) {
+      const t = topicById(id);
+      graph[t.subject].filter(x => x.prereq.includes(id) && x.prereq.every(pid => getTopic(pid).lit)).forEach(next => {
+        getTopic(next.id).easy = true;
+      });
+    }
+    function addMistake(q) {
+      const key = q.topicId + "-" + q.prompt;
+      const old = state.mistakes.find(m => m.key === key);
+      if (old) { old.count++; old.date = today(); old.tag = classify(q); }
+      else state.mistakes.push({ key, subject: q.subject, topicId: q.topicId, topic: q.topic, prompt: q.prompt, answer: q.answer, explain: q.explain, type: q.type, tag: classify(q), count: 1, date: today() });
+    }
+    function classify(q) {
+      if (q.subject === "鏁板" || q.subject === "鐗╃悊" || q.subject === "鍖栧") return "璁＄畻閿欒";
+      if (q.type === "澶氶€?) return "瀹￠澶辫";
+      return mistakeTags[Math.abs(hash(q.prompt)) % mistakeTags.length];
+    }
+    function showResult(score, pass) {
+      const focusCount = paper.focusEvents?.length || 0;
+      $("resultBox").innerHTML = `<div style="font-size:54px">${pass?"馃尭":"馃挆"}</div><h2>${pass?"閫氬叧鎴愬姛":"鏈鏈€氬叧"}</h2><p>寰楀垎锛?{score} / 100</p><p>涓撴敞璁板綍锛?{focusCount} 娆＄寮€/澶嶅埗/鍙抽敭绛夎涓?/p><p>${pass?"宸茶幏寰楁槦鏄熷苟瑙ｉ攣鏂板唴瀹广€?:"閫氬叧闇€瑕佹€诲垎鈮?0涓旈敊棰樺彉寮忓叏瀵癸紝閿欓宸茶繘鍏ラ敊棰樻湰銆?}</p><button class="btn primary" onclick="closeResult()">鐭ラ亾鍟?/button>`;
+      $("resultModal").classList.add("show");
+    }
+    window.closeResult = () => $("resultModal").classList.remove("show");
+    function renderMistakes() {
+      const sub = $("mistakeSubject")?.value || "";
+      const list = state.mistakes.filter(m => !sub || m.subject === sub).sort((a,b)=>b.count-a.count);
+      $("mistakeList").innerHTML = list.map(m => `<div class="mistake-item"><div class="row"><span class="badge-pill">${m.subject}</span><span class="badge-pill">${m.topic}</span><span class="badge-pill">${m.tag}</span><span class="badge-pill">閿?{m.count}娆?/span></div><b>${m.prompt}</b><p>绛旀锛?{m.answer.join("銆?)}</p><p class="muted">${m.explain}</p><button class="btn mint" onclick="redoMistake('${m.key}')">閲嶅仛鍚岀被鍙樺紡</button></div>`).join("") || `<p class="muted">鏆傛棤閿欓銆?/p>`;
+    }
+    window.redoMistake = key => {
+      const m = state.mistakes.find(x=>x.key===key);
+      if (!m) return;
+      selected = new Set([m.topicId]); $("difficulty").value = "easy"; buildPaper();
+    };
+    function renderMe() {
+      const all = subjects.flatMap(s=>graph[s]);
+      const lit = all.filter(t=>getTopic(t.id).lit).length;
+      $("meStars").textContent = state.stars;
+      $("meLit").textContent = lit;
+      $("meRate").textContent = Math.round(lit / all.length * 100) + "%";
+      $("checkinText").textContent = state.checkins.includes(today()) ? "浠婂ぉ宸茬鍒? : "浠婂ぉ杩樻湭绛惧埌";
+      $("medals").innerHTML = medalDefs.map(([n,need]) => `<div class="medal"><b>${state.stars>=need?"馃弲":"馃敀"} ${n}</b><p class="muted">${need}鏄熻В閿?/p></div>`).join("");
+      $("skins").innerHTML = skinDefs.map(([n,v],i) => `<button class="skin" ${state.stars<15 && i>0?"disabled":""} onclick="setSkin('${v}')"><b>${state.settings.visual===v?"鉁?:"馃巰"} ${n}</b><p class="muted">${i===0?"榛樿鍙敤":"15鏄熻В閿?}</p></button>`).join("");
+      $("fontSize").value = state.settings.font; $("lineHeight").value = state.settings.line; $("visualMode").value = state.settings.visual; $("focusGuard").checked = state.settings.focusGuard !== false;
+    }
+    window.setSkin = v => { state.settings.visual = v; save(); renderMe(); applySettings(); };
+    function applySettings() {
+      document.body.classList.toggle("eye", state.settings.visual === "eye");
+      document.body.classList.toggle("night", state.settings.visual === "night");
+      document.body.classList.toggle("focus-guard", state.settings.focusGuard !== false);
+      document.documentElement.style.setProperty("--fontScale", state.settings.font / 100);
+      document.documentElement.style.setProperty("--lineScale", state.settings.line / 100);
+    }
+    function showTab(tab) {
+      ["study","exam","mistakes","me"].forEach(x => {
+        $(x+"View")?.classList.toggle("hidden", x !== tab);
+        document.querySelector(`[data-tab="${x}"]`)?.classList.toggle("active", x === tab);
+      });
+      if (tab === "exam") renderQuestion();
+      if (tab === "mistakes") renderMistakes();
+      if (tab === "me") renderMe();
+    }
+    function getTopic(id) {
+      state.unlocked[id] ||= { easy:false, medium:false, hard:false, lit:false };
+      const topic = topicById(id);
+      if (topic?.level === 1) state.unlocked[id].easy = true;
+      return state.unlocked[id];
+    }
+    function isTopicOpen(t) {
+      if (t.level === 1) return true;
+      return t.prereq.every(id => getTopic(id).lit) || getTopic(t.id).easy;
+    }
+    function topicById(id) { return subjects.flatMap(s=>graph[s]).find(t=>t.id===id); }
+    function difficultyStatus(st) { return st.lit ? "宸茬偣浜? : `绠€${st.easy?"鉁?:"路"} 涓?{st.medium?"鉁?:"路"} 闅?{st.hard?"鉁?:"路"}`; }
+    function subjectProgress(s) { return Math.round(graph[s].filter(t=>getTopic(t.id).lit).length / graph[s].length * 100); }
+    function icon(s) { return ({璇枃:"馃摉",鏁板:"馃敘",鑻辫:"馃敜",鐗╃悊:"馃挕",鍖栧:"鈿楋笍",鍘嗗彶:"馃彌锔?,閬撴硶:"鈿栵笍"})[s]; }
+    function toast(t) { $("toast").textContent = t; $("toast").classList.add("show"); setTimeout(()=>$("toast").classList.remove("show"),2500); }
+    function recordFocusEvent(type) {
+      if (!paper || paper.result || state.settings.focusGuard === false) return;
+      paper.focusEvents ||= [];
+      paper.focusEvents.push({ type, at: Date.now(), q: qIndex + 1 });
+      save();
+      $("focusWarn").textContent = `涓撴敞璁板綍 ${paper.focusEvents.length}`;
+      toast("宸茶褰曚竴娆＄寮€绛旈椤?澶嶅埗绛夎涓猴紝璇蜂笓蹇冨畬鎴愭湰鍗枫€?);
+    }
+    function enterFocusGuard() {
+      if (state.settings.focusGuard === false) return;
+      document.body.classList.add("focus-guard");
+      if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+    }
+    function exitFocusGuard() {
+      if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+    }
+    function flower() { for(let i=0;i<10;i++){ const p=document.createElement("div"); p.className="petal"; p.textContent=i%2?"馃尭":"馃挅"; p.style.left=45+Math.random()*20+"vw"; p.style.top=55+Math.random()*15+"vh"; document.body.appendChild(p); setTimeout(()=>p.remove(),1000); } }
+    function failPetal() { toast("閿欓宸茬粡鑷姩淇濆瓨锛屼笅涓€杞細寮哄埗娣峰叆鍙樺紡棰樸€?); }
+    function hash(s) { let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return h; }
+    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+    $("closeGuideBtn").onclick = () => { $("guideModal").classList.remove("show"); state.first=false; save(); };
+    $("guideBtn").onclick = () => $("guideModal").classList.add("show");
+    if (!state.first) $("guideModal").classList.remove("show");
+    $("selectUnlockedBtn").onclick = () => { graph[currentSubject].filter(isTopicOpen).forEach(t=>selected.add(t.id)); save(); renderAll(); };
+    $("clearSelectedBtn").onclick = () => { selected.clear(); save(); renderAll(); };
+    $("buildBtn").onclick = buildPaper;
+    $("prevBtn").onclick = () => { if(paper) { qIndex=Math.max(0,qIndex-1); renderQuestion(); } };
+    $("nextBtn").onclick = () => { if(paper) { qIndex=Math.min(paper.questions.length-1,qIndex+1); renderQuestion(); } };
+    $("markBtn").onclick = () => { if(!paper)return; const q=paper.questions[qIndex]; paper.marks[q.uid]=!paper.marks[q.uid]; save(); renderQuestion(); };
+    $("submitBtn").onclick = submitPaper;
+    $("jumpMarkedBtn").onclick = () => { if(!paper)return; const i=paper.questions.findIndex(q=>paper.marks[q.uid]); if(i>=0){ qIndex=i; renderQuestion(); } else toast("鏆傛棤鏍囪棰樸€?); };
+    $("mistakeSubject").onchange = renderMistakes;
+    $("printMistakesBtn").onclick = () => window.print();
+    $("clearMistakesBtn").onclick = () => { if(confirm("纭畾娓呯┖鍏ㄩ儴閿欓锛熸鎿嶄綔涓嶅彲鎾ら攢銆?) && confirm("璇峰啀娆＄‘璁わ細鐪熺殑娓呯┖閿欓鏈悧锛?)) { state.mistakes=[]; save(); renderAll(); } };
+    $("checkinBtn").onclick = () => { if(!state.checkins.includes(today())) { state.checkins.push(today()); state.stars++; save(); renderAll(); flower(); } else toast("浠婂ぉ宸茬粡绛惧埌鍟︺€?); };
+    $("fontSize").oninput = e => { state.settings.font = Number(e.target.value); save(); applySettings(); };
+    $("lineHeight").oninput = e => { state.settings.line = Number(e.target.value); save(); applySettings(); };
+    $("visualMode").onchange = e => { state.settings.visual = e.target.value; save(); applySettings(); };
+    $("focusGuard").onchange = e => { state.settings.focusGuard = e.target.checked; save(); applySettings(); toast(e.target.checked ? "涓撴敞闃叉煡妯″紡宸插紑鍚€? : "涓撴敞闃叉煡妯″紡宸插叧闂€?); };
+    $("exportBtn").onclick = () => { const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:"application/json"})); a.download="鑺辨季涓€冨埛棰樻暟鎹?json"; a.click(); URL.revokeObjectURL(a.href); };
+    $("importBtn").onclick = () => $("importFile").click();
+    $("importFile").onchange = e => { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{ try{ state={...defaults(),...JSON.parse(r.result)}; save(); renderAll(); toast("瀵煎叆鎴愬姛銆?); }catch{ toast("瀵煎叆澶辫触銆?); } }; r.readAsText(f); };
+    $("resetBtn").onclick = () => { if(confirm("纭畾閲嶇疆鍏ㄩ儴杩涘害锛?) && confirm("浜屾纭锛氭槦鏄熴€侀敊棰樸€佺鎶€鏍戦兘浼氭竻绌恒€?)) { state=defaults(); selected=new Set(); paper=null; qIndex=0; save(); renderAll(); showTab("study"); } };
+    document.addEventListener("keydown", e => {
+      if ($("examView").classList.contains("hidden") || !paper) return;
+      const q = paper.questions[qIndex];
+      if (/^[1-9]$/.test(e.key)) document.querySelectorAll("input[name='opt']")[Number(e.key)-1]?.click();
+      if (/^[a-zA-Z]$/.test(e.key)) document.querySelectorAll("input[name='opt']")[e.key.toUpperCase().charCodeAt(0)-65]?.click();
+      if (e.key === "ArrowRight") $("nextBtn").click();
+      if (e.key === "ArrowLeft") $("prevBtn").click();
+      if (e.key.toLowerCase() === "m") $("markBtn").click();
+      if (e.key === "Enter") $("nextBtn").click();
+    });
+    document.addEventListener("visibilitychange", () => { if (document.hidden) recordFocusEvent("绂诲紑椤甸潰"); });
+    window.addEventListener("blur", () => recordFocusEvent("鍒囨崲绐楀彛"));
+    document.addEventListener("copy", e => { if (!$("examView").classList.contains("hidden") && state.settings.focusGuard !== false) { e.preventDefault(); recordFocusEvent("澶嶅埗棰樼洰"); } });
+    document.addEventListener("cut", e => { if (!$("examView").classList.contains("hidden") && state.settings.focusGuard !== false) { e.preventDefault(); recordFocusEvent("鍓垏鍐呭"); } });
+    document.addEventListener("contextmenu", e => { if (!$("examView").classList.contains("hidden") && state.settings.focusGuard !== false) { e.preventDefault(); recordFocusEvent("鍙抽敭鑿滃崟"); } });
+    let touchX = 0;
+    document.addEventListener("touchstart", e => touchX = e.changedTouches[0].clientX, {passive:true});
+    document.addEventListener("touchend", e => {
+      if ($("examView").classList.contains("hidden")) return;
+      const dx = e.changedTouches[0].clientX - touchX;
+      if (dx > 80) $("prevBtn").click();
+      if (dx < -80) $("nextBtn").click();
+    }, {passive:true});
+
+    renderAll(); if (paper) startTimer();
+  </script>
+</body>
+</html>
+
+
