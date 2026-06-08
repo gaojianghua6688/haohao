@@ -266,7 +266,7 @@
 
     function makeQuestion(subject, topic, diff, n) {
       const source = n % 2 ? "历年真题风格" : "中考模拟题";
-      const type = n % 6 === 0 ? "多选" : "单选";
+      const type = "单选";
       const score = diff === "easy" ? 3 : diff === "medium" ? 4 : 5;
       const base = { id: `${subject}-${topic}-${diff}-${n}`, subject, topic, diff, source, type, score };
       const pick = n % 8;
@@ -279,122 +279,526 @@
         "历史": () => historyQuestion(topic, source, n, pick),
         "道法": () => politicsQuestion(topic, source, n, pick)
       };
-      const q = makers[subject]();
-      if (type === "多选") {
-        const extra = "回到材料或题干，联系核心考点";
-        return { ...base, ...q, type, options: [...q.options, extra], answer: [q.answer[0], extra], score: score + 1 };
-      }
-      return { ...base, ...q };
+      return { ...base, ...finalizeQuestion(makers[subject]()) };
+    }
+
+    function finalizeQuestion(q) {
+      const options = [];
+      q.options.forEach(option => {
+        if (!options.includes(option)) options.push(option);
+      });
+      const fallback = ["无法由材料推出", "与题干条件不符", "只符合部分条件", "表述过于绝对"];
+      fallback.forEach(option => {
+        if (options.length < 4 && !options.includes(option)) options.push(option);
+      });
+      return { ...q, options: options.slice(0, 4), answer: [q.answer[0]] };
     }
 
     function chineseQuestion(topic, source, n, pick) {
-      const stems = [
-        `【${source}】阅读题考查“${topic}”时，下列答题思路最恰当的是？`,
-        `【${source}】围绕“${topic}”设题，最应该先抓住哪一项？`,
-        `【${source}】做“${topic}”类题目时，避免失分的关键是？`,
-        `【${source}】若题干要求分析表达效果，下列说法最合理的是？`
+      const passages = [
+        {
+          title: "巷口的灯",
+          text: "晚自习后，巷口那盏旧路灯总比别处亮得早。阿婆搬着小凳坐在灯下，手里一针一线地缝着校服袖口。她看见我低着头走来，便把凳子往旁边挪了挪，说：'慢点，地上有水。'我这才发现，白天漏水的水管在青石板上铺了一层薄亮。灯光照着那片水，像给回家的路铺了一层安静的银。后来我才知道，阿婆每天傍晚都会把灯旁的杂物收开，只为让孩子们看清脚下。",
+          word: "薄亮",
+          sentence: "灯光照着那片水，像给回家的路铺了一层安静的银。",
+          detail: "阿婆每天傍晚都会把灯旁的杂物收开",
+          emotion: "温暖、感激"
+        },
+        {
+          title: "一碗热汤",
+          text: "雨下得急，公交站牌前挤满了人。我把书包抱在胸前，试图挡住被风吹斜的雨。小店老板从门口探出头，冲我们喊：'进来躲躲吧，汤还热着。'店里不大，几张桌子很快坐满。老板没有催人点单，只把一锅萝卜汤端到门边，给每个淋湿的人盛半碗。汤很淡，却让人从指尖暖到心口。雨停时，门口的伞被人一把把递出去，谁也没有拿错。",
+          word: "探出头",
+          sentence: "汤很淡，却让人从指尖暖到心口。",
+          detail: "老板没有催人点单，只给淋湿的人盛汤",
+          emotion: "善意、温情"
+        },
+        {
+          title: "父亲的修车摊",
+          text: "父亲的修车摊在菜市场拐角，铁盒里总放着几枚磨亮的螺丝。有人来补胎，他弯下腰，先用手摸一遍轮胎，再把细小的玻璃渣挑出来。夏天的柏油路烫得发软，他的汗顺着下巴滴到地上。可每次收钱，他总把零头抹去，说：'车好骑就行。'我曾嫌他的摊位不起眼，直到有一天，看见一个老人推着车来，远远就喊：'老地方，还找你。'",
+          word: "磨亮",
+          sentence: "我曾嫌他的摊位不起眼，直到有一天，看见一个老人推着车来，远远就喊：'老地方，还找你。'",
+          detail: "父亲先摸轮胎，再挑玻璃渣",
+          emotion: "理解、敬佩"
+        },
+        {
+          title: "图书馆的便签",
+          text: "学校图书馆靠窗的位置，总贴着一张浅黄色便签：'读到这里，别忘了抬头看看树。'起初我以为是谁随手写的玩笑。期末复习那几天，我被一道题卡住，越想越烦，抬头时正看见窗外香樟树的新叶在风里翻动。那些叶子并不急着长大，只是一片一片舒展开。我忽然明白，便签不是让人分心，而是提醒我们在紧张里留一点呼吸。",
+          word: "舒展",
+          sentence: "便签不是让人分心，而是提醒我们在紧张里留一点呼吸。",
+          detail: "便签提醒读者抬头看看树",
+          emotion: "释然、从容"
+        }
       ];
-      return {
-        prompt: `${stems[pick % stems.length]}（题组${n}）`,
-        options: ["结合文本语境和关键词作答", "只看题目长短判断", "完全凭第一感觉", "忽略材料直接套话"],
-        answer: ["结合文本语境和关键词作答"],
-        explain: "语文阅读题要回到文本，结合语境、关键词和题干要求作答。"
-      };
+      const passage = passages[n % passages.length];
+      const stemType = pick % 6;
+      const header = `【${source}·${topic}】阅读下面文字，完成题目。\n《${passage.title}》\n${passage.text}\n\n`;
+      const questions = [
+        {
+          prompt: `${header}结合语境，文中加点词“${passage.word}”最恰当的理解是？（题组${n}）`,
+          options: ["写出了具体情境中的状态，也暗含人物感受", "主要说明时间推移很快", "强调人物说话声音很低", "突出事件发生地点偏僻"],
+          answer: ["写出了具体情境中的状态，也暗含人物感受"],
+          explain: "词语理解题要放回上下文，看它写出了什么特点，并联系人物情感或文章主旨。"
+        },
+        {
+          prompt: `${header}请判断画线句“${passage.sentence}”的表达作用，最恰当的一项是？（题组${n}）`,
+          options: ["运用描写或修辞，表现环境特点，并烘托人物情感", "直接交代故事发生的准确时间", "主要说明人物外貌发生变化", "突出情节发展出现激烈冲突"],
+          answer: ["运用描写或修辞，表现环境特点，并烘托人物情感"],
+          explain: "句子赏析题通常从修辞、描写、关键词入手，再答出内容效果和情感作用。"
+        },
+        {
+          prompt: `${header}下列对文中细节“${passage.detail}”的理解，最符合文意的是？（题组${n}）`,
+          options: ["体现人物细心、善良或负责，推动读者理解主题", "说明人物做事拖拉，影响情节推进", "表现人物急于得到他人称赞", "暗示人物对眼前工作十分厌烦"],
+          answer: ["体现人物细心、善良或负责，推动读者理解主题"],
+          explain: "细节描写往往服务于人物形象和主题表达，不能只看表面动作。"
+        },
+        {
+          prompt: `${header}文章主要表达的情感最接近哪一项？（题组${n}）`,
+          options: [passage.emotion, "厌烦、疏离", "恐惧、压抑", "得意、炫耀"],
+          answer: [passage.emotion],
+          explain: "概括情感要抓人物行为、叙述语气和结尾处的转折或点题句。"
+        },
+        {
+          prompt: `${header}如果把文章标题换成“普通的一天”，下列评价最合理的是？（题组${n}）`,
+          options: ["不如原题具体，原题更能提示关键意象和主题", "更好，因为新标题能概括所有细节", "两个标题都只交代时间，表达效果相同", "原题削弱了文章悬念，不宜使用"],
+          answer: ["不如原题具体，原题更能提示关键意象和主题"],
+          explain: "标题作用题可从线索、对象、悬念、情感和主题提示等角度分析。"
+        },
+        {
+          prompt: `${header}阅读全文，下列对文章内容和主题的理解最恰当的一项是？（题组${n}）`,
+          options: ["文章通过具体生活细节，表现普通人之间的善意与温情", "文章主要表现公共秩序混乱带来的后果", "文章重点介绍自然景物变化的科学原因", "文章意在突出主人公学习成绩的提高"],
+          answer: ["文章通过具体生活细节，表现普通人之间的善意与温情"],
+          explain: "内容理解题要概括主要事件，并联系人物行为和结尾语句把握主题。"
+        }
+      ];
+      return questions[stemType];
     }
 
     function mathQuestion(topic, source, n, diff, pick) {
-      const a = n + 1;
-      const b = pick + (diff === "hard" ? 5 : diff === "medium" ? 3 : 1);
-      if (topic.includes("函数")) {
+      const a = n + 2;
+      const b = pick + (diff === "hard" ? 6 : diff === "medium" ? 4 : 2);
+      const qid = `（题组${n}）`;
+      if (topic.includes("二次函数")) {
+        const h = pick % 5 + 1;
+        const k = diff === "hard" ? -b : b;
         return {
-          prompt: `【${source}】已知函数 y=${a}x+${b}，它与 y 轴交点的纵坐标是？（题组${n}）`,
-          options: [String(a), String(b), String(a + b), String(a * b)],
-          answer: [String(b)],
-          explain: "令 x=0，y 轴交点的纵坐标就是常数项。"
+          prompt: `【${source}】如图象信息所示，抛物线 y=(x-${h})²${k >= 0 ? "+" : ""}${k} 的顶点坐标是？${qid}`,
+          options: [`(${h},${k})`, `(${-h},${k})`, `(${h},${-k})`, `(${k},${h})`],
+          answer: [`(${h},${k})`],
+          explain: "y=(x-h)²+k 的顶点坐标是 (h,k)。"
+        };
+      }
+      if (topic.includes("一次函数") || topic.includes("函数")) {
+        const x1 = 2;
+        const y1 = a * x1 + b;
+        const x2 = 5;
+        const y2 = a * x2 + b;
+        return {
+          prompt: `【${source}】某校印刷资料的费用 y（元）与份数 x（份）近似满足一次函数关系。已知印 ${x1} 份需 ${y1} 元，印 ${x2} 份需 ${y2} 元。若不考虑其他费用，每增加1份资料，费用增加多少元？${qid}`,
+          options: uniqueNumbers([a, b, a + b, y2 - y1, y1]).slice(0, 4).map(v => `${v}元`),
+          answer: [`${a}元`],
+          explain: "一次函数中每增加1份对应的费用变化量是斜率，(y2-y1)/(x2-x1)。"
         };
       }
       if (topic.includes("统计") || topic.includes("概率")) {
+        const red = b;
+        const blue = b + 2;
+        const total = red + blue;
         return {
-          prompt: `【${source}】数据 ${b}, ${b + 1}, ${b + 1}, ${b + 2}, ${b + 4} 的众数是？（题组${n}）`,
-          options: [String(b), String(b + 1), String(b + 2), String(b + 4)],
-          answer: [String(b + 1)],
-          explain: "出现次数最多的数据叫众数。"
+          prompt: `【${source}】一个不透明袋中有除颜色外完全相同的红球 ${red} 个、蓝球 ${blue} 个。随机摸出1个球，摸到红球的概率是？${qid}`,
+          options: [`${red}/${total}`, `${blue}/${total}`, `${red}/${blue}`, `${total}/${red}`],
+          answer: [`${red}/${total}`],
+          explain: "概率=符合条件的结果数÷所有可能结果数。"
         };
       }
+      if (topic.includes("方程") || topic.includes("不等式")) {
+        const price = b + 3;
+        const count = a + 4;
+        const total = price * count;
+        return {
+          prompt: `【${source}】学校购买同一种笔记本 ${count} 本共用 ${total} 元。若每本单价为 x 元，根据题意可列方程为？${qid}`,
+          options: [`${count}x=${total}`, `x+${count}=${total}`, `${total}x=${count}`, `x-${count}=${total}`],
+          answer: [`${count}x=${total}`],
+          explain: "总价=单价×数量，所以列方程为数量×x=总价。"
+        };
+      }
+      if (topic.includes("圆")) {
+        const angle = 40 + (pick % 4) * 10;
+        return {
+          prompt: `【${source}】在圆O中，弦AB所对的圆心角∠AOB=${angle * 2}°。点C在圆上且与O在弦AB的同侧，则∠ACB的度数为？${qid}`,
+          options: [`${angle}°`, `${angle * 2}°`, `${90 - angle}°`, `${180 - angle}°`],
+          answer: [`${angle}°`],
+          explain: "同弧所对圆周角等于圆心角的一半。"
+        };
+      }
+      if (topic.includes("相似")) {
+        const scale = pick % 3 + 2;
+        const small = a + 3;
+        return {
+          prompt: `【${source}】△ABC 与 △A'B'C' 相似，相似比为 1:${scale}。若 AB=${small} cm，则 A'B' 的长为？${qid}`,
+          options: [`${small * scale}cm`, `${small + scale}cm`, `${small}cm`, `${Math.max(1, small - scale)}cm`],
+          answer: [`${small * scale}cm`],
+          explain: "对应边的比等于相似比。"
+        };
+      }
+      if (topic.includes("全等")) {
+        return {
+          prompt: `【${source}】如图，AB=DE，AC=DF，∠A=∠D。要判断△ABC≌△DEF，所用的判定依据是？${qid}`,
+          options: ["SAS", "ASA", "AAS", "HL"],
+          answer: ["SAS"],
+          explain: "两边及其夹角分别相等，可用SAS判定全等。"
+        };
+      }
+      const leg1 = a + 3;
+      const leg2 = b + 4;
+      const hyp = Math.sqrt(leg1 * leg1 + leg2 * leg2).toFixed(1);
       return {
-        prompt: `【${source}】直角三角形两直角边为 ${a + 2} 和 ${b + 3}，求斜边时应优先使用哪个定理？（题组${n}）`,
-        options: ["勾股定理", "平行线性质", "韦达定理", "频率估计概率"],
-        answer: ["勾股定理"],
-        explain: "直角三角形三边关系优先想到勾股定理。"
+        prompt: `【${source}】某广场有一块直角三角形绿地，两条直角边分别约为 ${leg1}m 和 ${leg2}m。若要沿斜边铺设护栏，护栏长度约为多少米？${qid}`,
+        options: [`${hyp}m`, `${leg1 + leg2}m`, `${Math.abs(leg2 - leg1)}m`, `${(leg1 * leg2 / 2).toFixed(1)}m`],
+        answer: [`${hyp}m`],
+        explain: "直角三角形斜边长可由勾股定理计算。"
       };
     }
 
+    function uniqueNumbers(values) {
+      const out = [];
+      values.forEach(value => {
+        const n = Number(value);
+        if (Number.isFinite(n) && !out.includes(n)) out.push(n);
+      });
+      let next = 1;
+      while (out.length < 4) {
+        if (!out.includes(next)) out.push(next);
+        next++;
+      }
+      return out;
+    }
+
     function englishQuestion(topic, source, n, pick) {
-      const qs = [
-        ["She ____ in Guangzhou since 2024.", ["has lived", "lived", "is living", "live"], "has lived", "since 常与现在完成时连用。"],
-        ["I wonder ____ tomorrow.", ["whether it will rain", "will it rain", "does it rain", "it rains"], "whether it will rain", "宾语从句用陈述语序。"],
-        ["The passage mainly tells us ____.", ["the main idea", "only a number", "a spelling rule", "a punctuation mark"], "the main idea", "主旨题要概括全文中心。"],
-        ["When someone says sorry, you can reply ____.", ["Never mind.", "Good idea.", "Me too.", "Here you are."], "Never mind.", "Never mind 表示没关系。"]
+      const passages = [
+        {
+          text: "Last Friday, Class 3 held a small science fair. Li Ming made a simple water filter with sand, stones and cotton. His first try failed because the layers were in the wrong order. After reading the instructions again, he changed the order and the water became much clearer. He wrote in his notebook, 'A mistake is useful if I learn from it.'",
+          ask: "What can we learn from Li Ming's experience?",
+          options: ["Learning from mistakes can help us improve", "Science fairs are only about winning prizes", "Cotton should never be used in an experiment", "Instructions are useless in science activities"],
+          answer: "Learning from mistakes can help us improve",
+          explain: "文章结尾点明中心：从错误中学习可以带来改进。"
+        },
+        {
+          text: "NOTICE: Volunteers Wanted. The school library needs ten students to help younger readers every Wednesday afternoon. Volunteers should be patient and enjoy reading. Please sign up before Friday at the library desk.",
+          ask: "Who is the notice mainly written for?",
+          options: ["Students who want to help in the library", "Parents who want to borrow books", "Teachers who need a meeting room", "Workers who repair desks"],
+          answer: "Students who want to help in the library",
+          explain: "notice中出现 Volunteers Wanted，并说明报名地点和要求。"
+        },
+        {
+          text: "When Chen Yu moved to a new school, she was afraid to speak in class. One day, her deskmate invited her to join a group discussion. Chen Yu only said two sentences, but the group listened carefully. From then on, she became more confident.",
+          ask: "Why did Chen Yu become more confident?",
+          options: ["Her classmates listened to her carefully", "She changed to another city", "She won a sports game", "Her teacher cancelled the discussion"],
+          answer: "Her classmates listened to her carefully",
+          explain: "细节题要回到原文，关键句是 the group listened carefully。"
+        },
+        {
+          text: "A report shows that more students ride bikes to school than before. It is cheaper than taking a car and creates less pollution. However, students should wear helmets and follow traffic rules.",
+          ask: "Which is the best title for the passage?",
+          options: ["Bike Riding to School", "How to Buy a Car", "A Difficult Maths Test", "The History of Helmets"],
+          answer: "Bike Riding to School",
+          explain: "全文围绕骑车上学的好处和安全要求展开。"
+        },
+        {
+          text: "In our English project, every member had a job. Wang Lei searched for information, I made the poster, and Zhang Min practised the speech. We finished it on time because we worked together.",
+          ask: "The underlined idea 'worked together' is closest in meaning to ____.",
+          options: ["cooperated", "waited", "argued", "travelled"],
+          answer: "cooperated",
+          explain: "根据前文分工完成任务可知 worked together 表示合作。"
+        }
       ];
-      const q = qs[pick % qs.length];
-      return { prompt: `【${source}·${topic}】${q[0]}（题组${n}）`, options: q[1], answer: [q[2]], explain: q[3] };
+      const grammar = {
+        text: "Mike is writing an email to his Chinese friend. He says, 'I have been in Guangzhou for two years. I enjoy the city and I hope I can visit the Canton Tower again next weekend.'",
+        ask: "In the sentence 'I have been in Guangzhou for two years', the correct reason for using 'have been' is that ____.",
+        options: ["the action started in the past and continues to now", "the action will happen tomorrow", "the sentence is an order", "the subject is plural"],
+        answer: "the action started in the past and continues to now",
+        explain: "for two years 表示从过去持续到现在，常用现在完成时。"
+      };
+      const item = topic.includes("语法") ? grammar : passages[(n + pick) % passages.length];
+      return {
+        prompt: `【${source}·${topic}】Read the material and choose the best answer.\n${item.text}\n${item.ask}（题组${n}）`,
+        options: item.options,
+        answer: [item.answer],
+        explain: item.explain
+      };
     }
 
     function physicsQuestion(topic, source, n, diff, pick) {
       const t = n + 4;
       const v = pick + (diff === "hard" ? 5 : 3);
+      const qid = `（题组${n}）`;
       if (topic.includes("电") || topic.includes("欧姆")) {
+        const r = v + 2;
+        const u1 = r;
+        const u2 = r * 2;
         return {
-          prompt: `【${source}】某电阻两端电压为 ${v * 2}V，通过电流为 2A，电阻为多少欧？（题组${n}）`,
-          options: [`${v}Ω`, `${v * 2}Ω`, "2Ω", `${v + 2}Ω`],
-          answer: [`${v}Ω`],
-          explain: "根据 R=U/I 计算。"
+          prompt: `【${source}】某小组探究“电流与电压的关系”，保持定值电阻不变，记录数据：电压为 ${u1}V 时电流为 1A，电压为 ${u2}V 时电流为 2A。由数据可知，该定值电阻的阻值为多少？${qid}`,
+          options: [`${r}Ω`, `${r * 2}Ω`, "1Ω", `${u2 + 1}Ω`],
+          answer: [`${r}Ω`],
+          explain: "定值电阻 R=U/I，两组数据都可得到相同阻值。"
+        };
+      }
+      if (topic.includes("压强") || topic.includes("浮力")) {
+        const force = (v + 5) * 10;
+        const area = 2;
+        return {
+          prompt: `【${source}】一名同学用海绵、小桌和砝码探究压力作用效果。若小桌对海绵的压力为 ${force}N，受力面积为 ${area}m²，则压强为多少？${qid}`,
+          options: [`${force / area}Pa`, `${force * area}Pa`, `${force + area}Pa`, `${force - area}Pa`],
+          answer: [`${force / area}Pa`],
+          explain: "压强 p=F/S。"
+        };
+      }
+      if (topic.includes("光")) {
+        return {
+          prompt: `【${source}】在探究平面镜成像特点时，小明把一支点燃的蜡烛放在玻璃板前，再用一支未点燃的相同蜡烛在玻璃板后移动，直到看上去与像完全重合。这个做法主要是为了比较什么？${qid}`,
+          options: ["像与物的大小关系", "光在空气中的传播速度", "蜡烛燃烧的时间", "玻璃板的厚度"],
+          answer: ["像与物的大小关系"],
+          explain: "用相同蜡烛与像重合，可判断平面镜成像大小与物体大小相等。"
+        };
+      }
+      if (topic.includes("声")) {
+        return {
+          prompt: `【${source}】把正在发声的电铃放入玻璃罩内，逐渐抽出罩内空气，听到铃声逐渐减弱。该实验能说明什么？${qid}`,
+          options: ["声音传播需要介质", "声音只能在真空中传播", "声音的响度与颜色有关", "光传播需要空气"],
+          answer: ["声音传播需要介质"],
+          explain: "空气越少声音越弱，说明声音传播需要介质。"
+        };
+      }
+      if (topic.includes("力")) {
+        return {
+          prompt: `【${source}】在探究滑动摩擦力大小的实验中，应拉动木块在水平木板上做匀速直线运动。这样操作的主要原因是？${qid}`,
+          options: ["使弹簧测力计示数等于滑动摩擦力", "让木块受到的重力消失", "增大木板对木块的支持力", "改变木块的质量"],
+          answer: ["使弹簧测力计示数等于滑动摩擦力"],
+          explain: "匀速直线运动时木块受平衡力，拉力大小等于摩擦力。"
         };
       }
       return {
-        prompt: `【${source}】小车 ${t}s 行驶 ${t * v}m，平均速度是多少？（题组${n}）`,
+        prompt: `【${source}】某实验中，小车从斜面顶端由静止释放，经过 ${t}s 通过的路程为 ${t * v}m。若只求这段过程的平均速度，应选择下列哪一结果？${qid}`,
         options: [`${v}m/s`, `${t}m/s`, `${v + 2}m/s`, `${t * v}m/s`],
         answer: [`${v}m/s`],
-        explain: "速度=路程÷时间。"
+        explain: "平均速度=总路程÷总时间。"
       };
     }
 
     function chemistryQuestion(topic, source, n, pick) {
-      const qs = [
-        ["化学变化的本质特征是？", "有新物质生成"],
-        ["氧气能支持燃烧，说明氧气具有？", "助燃性"],
-        ["溶液由溶质和什么组成？", "溶剂"],
-        ["酸碱中和反应通常生成盐和什么？", "水"]
+      const cases = [
+        {
+          material: "某小组把少量铁粉加入硫酸铜溶液中，充分反应后观察到铁粉表面有红色固体析出，溶液蓝色逐渐变浅。",
+          ask: "根据实验现象，下列判断正确的是？",
+          options: ["铁的金属活动性强于铜", "铜能把铁从溶液中置换出来", "该反应没有新物质生成", "溶液变浅说明水被消耗完"],
+          answer: "铁的金属活动性强于铜",
+          explain: "铁能置换出铜，说明铁的金属活动性比铜强，这是金属活动性顺序的常见考法。"
+        },
+        {
+          material: "实验室用过氧化氢溶液和二氧化锰制取氧气。反应前后二氧化锰的质量和化学性质基本不变。",
+          ask: "二氧化锰在该反应中的作用是？",
+          options: ["催化作用", "生成氧气的反应物", "吸收氧气", "使氧气变成液体"],
+          answer: "催化作用",
+          explain: "催化剂能改变反应速率，反应前后质量和化学性质不变。"
+        },
+        {
+          material: "向某无色溶液中滴入紫色石蕊溶液，溶液变红；再逐滴加入氢氧化钠溶液，红色逐渐变浅并接近紫色。",
+          ask: "该实验主要说明原无色溶液可能具有哪种性质？",
+          options: ["酸性", "碱性", "中性", "一定含有银离子"],
+          answer: "酸性",
+          explain: "紫色石蕊遇酸变红，加入碱后发生中和，颜色逐渐改变。"
+        },
+        {
+          material: "某同学配制50g质量分数为6%的氯化钠溶液，需要称取氯化钠并量取水。",
+          ask: "需要氯化钠的质量是多少？",
+          options: ["3g", "6g", "47g", "50g"],
+          answer: "3g",
+          explain: "溶质质量=溶液质量×溶质质量分数=50g×6%=3g。"
+        },
+        {
+          material: "将燃着的木条伸入一瓶无色气体中，木条燃烧更旺；将澄清石灰水倒入另一瓶无色气体中，石灰水变浑浊。",
+          ask: "两瓶气体最可能分别是？",
+          options: ["氧气、二氧化碳", "二氧化碳、氧气", "氮气、氧气", "空气、氢气"],
+          answer: "氧气、二氧化碳",
+          explain: "氧气能支持燃烧；二氧化碳能使澄清石灰水变浑浊。"
+        },
+        {
+          material: "某白色固体加入稀盐酸后产生气泡，将产生的气体通入澄清石灰水，石灰水变浑浊。",
+          ask: "该白色固体中可能含有哪类物质？",
+          options: ["碳酸盐", "硝酸盐", "氯化钠", "金属铜"],
+          answer: "碳酸盐",
+          explain: "碳酸盐与酸反应可生成二氧化碳，二氧化碳使澄清石灰水变浑浊。"
+        }
       ];
-      const q = qs[pick % qs.length];
+      const item = cases[(n + pick) % cases.length];
       return {
-        prompt: `【${source}·${topic}】${q[0]}（题组${n}）`,
-        options: [q[1], "颜色一定改变", "质量一定消失", "一定产生沉淀"],
-        answer: [q[1]],
-        explain: "化学题要抓概念关键词、实验现象和守恒关系。"
+        prompt: `【${source}·${topic}】阅读实验材料，回答问题。\n${item.material}\n${item.ask}（题组${n}）`,
+        options: item.options,
+        answer: [item.answer],
+        explain: item.explain
       };
     }
 
     function historyQuestion(topic, source, n, pick) {
-      const qs = [
-        ["分析历史事件影响时，最完整的角度是？", "政治、经济、社会等多角度"],
-        ["学习近代史条约内容时，应重点联系？", "时代背景和影响"],
-        ["工业革命推动社会变化的关键因素是？", "生产方式变化"],
-        ["评价历史人物时，较合理的方法是？", "放在具体时代背景中分析"]
-      ];
-      const q = qs[pick % qs.length];
-      return { prompt: `【${source}·${topic}】${q[0]}（题组${n}）`, options: [q[1], "只看个人喜好", "只背年份", "忽略材料"], answer: [q[1]], explain: "历史题要结合背景、过程、结果和影响。"};
+      const byTopic = {
+        "中国古代史": [
+          {
+            material: "材料：秦朝统一后，把小篆作为全国规范文字，又统一货币、度量衡，并修筑驰道加强各地联系。",
+            ask: "这些措施共同产生的主要作用是？",
+            options: ["加强国家统一和地区交流", "推动民族资本主义发展", "直接导致科举制创立", "结束了清朝闭关锁国"],
+            answer: "加强国家统一和地区交流",
+            explain: "统一文字、货币、度量衡有利于政令推行和经济文化交流。"
+          },
+          {
+            material: "材料：唐太宗重视纳谏和用人，发展生产，减轻人民负担，社会经济逐步恢复和发展。",
+            ask: "材料反映的治世局面通常被称为？",
+            options: ["贞观之治", "文景之治", "康乾盛世", "开元盛世"],
+            answer: "贞观之治",
+            explain: "唐太宗时期政治清明、经济恢复，被称为贞观之治。"
+          }
+        ],
+        "中国近代史": [
+          {
+            material: "材料：条约规定开放广州、厦门、福州、宁波、上海为通商口岸；割香港岛给英国；赔款2100万银元。",
+            ask: "该材料反映的历史事件是？",
+            options: ["《南京条约》的签订", "洋务运动的开展", "辛亥革命的爆发", "五四运动的兴起"],
+            answer: "《南京条约》的签订",
+            explain: "五口通商、割香港岛、赔款是《南京条约》的典型内容。"
+          },
+          {
+            material: "材料：19世纪60年代起，清政府中的一些官员主张学习西方先进技术，创办军事工业和民用企业，以求“自强”“求富”。",
+            ask: "材料反映的是哪一运动？",
+            options: ["洋务运动", "戊戌变法", "新文化运动", "土地改革"],
+            answer: "洋务运动",
+            explain: "“自强”“求富”、创办近代工业是洋务运动的重要特征。"
+          }
+        ],
+        "新民主主义革命": [
+          {
+            material: "材料：1919年，北京学生举行游行示威，提出“外争主权，内除国贼”等口号，工人阶级随后登上政治舞台。",
+            ask: "这一事件在中国革命史上的重要意义是？",
+            options: ["标志着新民主主义革命的开端", "标志着抗日战争全面爆发", "标志着土地改革完成", "标志着三大改造完成"],
+            answer: "标志着新民主主义革命的开端",
+            explain: "五四运动是中国新民主主义革命的开端。"
+          },
+          {
+            material: "材料：1937年后，中国军民在正面战场和敌后战场共同抗击日本侵略，最终取得近代以来反抗外敌入侵的第一次完全胜利。",
+            ask: "材料评价的是哪场战争？",
+            options: ["抗日战争", "鸦片战争", "甲午中日战争", "解放战争"],
+            answer: "抗日战争",
+            explain: "近代以来反抗外敌入侵的第一次完全胜利指抗日战争胜利。"
+          }
+        ],
+        "世界近代史": [
+          {
+            material: "材料：14世纪前后，意大利一些城市出现新的思想潮流，人们开始更多关注现实生活和人的价值。",
+            ask: "材料反映的思想文化运动是？",
+            options: ["文艺复兴", "启蒙运动", "工业革命", "十月革命"],
+            answer: "文艺复兴",
+            explain: "关注人的价值、提倡人文主义，是文艺复兴的重要特点。"
+          },
+          {
+            material: "材料：1789年，巴黎人民攻占巴士底狱，法国大革命爆发，随后《人权宣言》宣告人生而自由、权利平等。",
+            ask: "材料体现的时代诉求主要是？",
+            options: ["反对封建专制，追求自由平等", "维护封建等级制度", "恢复奴隶制度", "扩大殖民掠夺"],
+            answer: "反对封建专制，追求自由平等",
+            explain: "法国大革命反对封建专制，宣传自由、平等、民主思想。"
+          }
+        ],
+        "工业革命": [
+          {
+            material: "材料：18世纪后期，机器生产逐渐代替手工劳动，工厂制度兴起，交通运输也因蒸汽机的应用发生巨大变化。",
+            ask: "材料反映的历史现象是？",
+            options: ["第一次工业革命", "文艺复兴", "新航路开辟", "第二次世界大战"],
+            answer: "第一次工业革命",
+            explain: "机器生产、工厂制度、蒸汽机是第一次工业革命的关键线索。"
+          },
+          {
+            material: "材料：19世纪后期，电力被广泛应用，内燃机、汽车、飞机等新技术和新交通工具相继出现。",
+            ask: "这主要反映了哪一历史时期的成就？",
+            options: ["第二次工业革命", "第一次世界大战", "新航路开辟", "资产阶级革命"],
+            answer: "第二次工业革命",
+            explain: "电力、内燃机、汽车和飞机是第二次工业革命的重要成果。"
+          }
+        ],
+        "两次世界大战": [
+          {
+            material: "材料：1914年，一场局部事件迅速演变为世界大战，欧洲主要列强卷入战争，给人类社会造成巨大灾难。",
+            ask: "这场世界大战爆发的导火索是？",
+            options: ["萨拉热窝事件", "凡尔登战役", "珍珠港事件", "诺曼底登陆"],
+            answer: "萨拉热窝事件",
+            explain: "萨拉热窝事件是第一次世界大战爆发的导火索。"
+          },
+          {
+            material: "材料：1942年，中、美、英、苏等国签署宣言，逐步形成世界反法西斯同盟。",
+            ask: "这一同盟形成的主要作用是？",
+            options: ["加强反法西斯国家协同作战", "加速法西斯势力扩张", "结束第一次世界大战", "建立凡尔赛体系"],
+            answer: "加强反法西斯国家协同作战",
+            explain: "世界反法西斯同盟推动各国协同作战，是战争胜利的重要保障。"
+          }
+        ]
+      };
+      const cases = byTopic[topic] || byTopic["中国近代史"];
+      const item = cases[(n + pick) % cases.length];
+      return {
+        prompt: `【${source}·${topic}】阅读材料，回答问题。\n${item.material}\n${item.ask}（题组${n}）`,
+        options: item.options,
+        answer: [item.answer],
+        explain: item.explain
+      };
     }
 
     function politicsQuestion(topic, source, n, pick) {
-      const qs = [
-        ["面对网络谣言，正确做法是？", "不信谣、不传谣，必要时举报"],
-        ["权利和义务的关系可以概括为？", "相统一"],
-        ["维护国家利益时，青少年应做到？", "增强责任意识并落实行动"],
-        ["规则与自由的关系是？", "规则保障自由"]
+      const cases = [
+        {
+          material: "情境：小林在班级群里看到一条未经证实的“学校停课”消息，很多同学准备转发。",
+          ask: "小林的正确做法是？",
+          options: ["先核实来源，不信谣不传谣", "马上转发给所有人", "编造更多细节提醒大家", "只要好玩就可以传播"],
+          answer: "先核实来源，不信谣不传谣",
+          explain: "网络生活要理性参与，遵守法律和道德，传播信息前应核实。"
+        },
+        {
+          material: "情境：小区图书角写着“每次借书请登记，读完及时归还”。有人认为这是限制自由。",
+          ask: "对此理解正确的是？",
+          options: ["规则划定自由边界，也保障大家的阅读自由", "有规则就没有自由", "自由就是想拿多久就拿多久", "规则只约束别人"],
+          answer: "规则划定自由边界，也保障大家的阅读自由",
+          explain: "社会规则不是取消自由，而是保障有序生活中的自由。"
+        },
+        {
+          material: "情境：学校组织国家安全主题活动，同学们讨论青少年能为国家安全做什么。",
+          ask: "下列做法最恰当的是？",
+          options: ["增强国家安全意识，发现危害行为及时报告", "认为国家安全与学生无关", "随意拍摄涉密场所并上传", "只在考试前背概念"],
+          answer: "增强国家安全意识，发现危害行为及时报告",
+          explain: "维护国家安全是公民义务，青少年也应从实际行动做起。"
+        },
+        {
+          material: "情境：小周在网上购买文具后发现商家发错货，与商家沟通无果。",
+          ask: "小周维护权利的合理路径是？",
+          options: ["保存证据，依法协商、投诉或寻求平台帮助", "辱骂商家并泄露其个人信息", "自认倒霉，不再处理", "找同学一起恶意刷差评"],
+          answer: "保存证据，依法协商、投诉或寻求平台帮助",
+          explain: "维权要依法、有序、理性，注意保存证据。"
+        },
+        {
+          material: "情境：班级值日时，有同学只想享受干净环境，却不愿参加劳动。",
+          ask: "从权利与义务关系看，正确认识是？",
+          options: ["享有权利的同时也应履行相应义务", "权利和义务完全无关", "只享受权利不用承担义务", "义务只属于班干部"],
+          answer: "享有权利的同时也应履行相应义务",
+          explain: "公民的权利和义务相统一，集体生活中也要承担责任。"
+        },
+        {
+          material: "情境：某地推进垃圾分类，有居民觉得麻烦，随意投放。",
+          ask: "从生态文明角度看，正确做法是？",
+          options: ["自觉分类投放，践行绿色生活方式", "只要没人看见就随便扔", "环保只是政府的事", "把垃圾放到别人门口"],
+          answer: "自觉分类投放，践行绿色生活方式",
+          explain: "建设生态文明需要每个人落实绿色、低碳、文明的生活方式。"
+        }
       ];
-      const q = qs[pick % qs.length];
-      return { prompt: `【${source}·${topic}】${q[0]}（题组${n}）`, options: [q[1], "只顾自己方便", "逃避规则", "传播未经证实信息"], answer: [q[1]], explain: "道法情境题要联系规则、法律、责任和国家发展。"};
+      const item = cases[(n + pick) % cases.length];
+      return {
+        prompt: `【${source}·${topic}】阅读情境，回答问题。\n${item.material}\n${item.ask}（题组${n}）`,
+        options: item.options,
+        answer: [item.answer],
+        explain: item.explain
+      };
     }
 
     const bank = buildBank();
