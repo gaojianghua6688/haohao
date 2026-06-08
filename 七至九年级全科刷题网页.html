@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>花漾中考全科科技树刷题</title>
+  <style>
+    /* 离线版 Tailwind 风格设计变量：不引用 CDN，双击即可运行 */
+    :root {
+      --bg: #fff7fb;
+      --card: rgba(255,255,255,.82);
+      --ink: #4a3b55;
+      --muted: #85758f;
+      --line: rgba(139, 101, 160, .18);
+      --pink: #ff8fc7;
+      --pink2: #ffd8ec;
+      --purple: #b79cff;
+      --purple2: #eee8ff;
+      --mint: #8fe5c8;
+      --mint2: #e2faf2;
+      --yellow: #ffe892;
+      --blue: #8bcaff;
+      --red: #ff8b9a;
+      --green: #3fb989;
+      --shadow: 0 18px 48px rgba(152, 96, 164, .18);
+      --radius: 24px;
+      --fontScale: 1;
+      --lineScale: 1.55;
+    }
+    body.night {
+      --bg: #191628;
+      --card: rgba(37, 31, 55, .88);
+      --ink: #f6edff;
+      --muted: #c9bad8;
+      --line: rgba(255,255,255,.14);
+      --shadow: 0 18px 48px rgba(0,0,0,.28);
+    }
+    body.eye {
+      --bg: #f4f8e7;
+      --card: rgba(255, 253, 235, .88);
+      --pink: #ef91b8;
+      --purple: #aaa0dd;
+      --mint: #91d7b7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif;
+      font-size: calc(16px * var(--fontScale));
+      line-height: var(--lineScale);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(255,216,236,.9), transparent 28%),
+        radial-gradient(circle at 92% 8%, rgba(226,250,242,.92), transparent 26%),
+        linear-gradient(135deg, var(--bg), var(--purple2));
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    button, input, select { font: inherit; }
+    button { border: 0; cursor: pointer; }
+    .hidden { display: none !important; }
+    .app { width: min(1500px, calc(100vw - 28px)); margin: 0 auto; padding: 18px 0 30px; }
+    .top {
+      display: flex; justify-content: space-between; align-items: center; gap: 14px;
+      margin-bottom: 14px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo {
+      width: 58px; height: 58px; border-radius: 22px; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: white; font-size: 30px; box-shadow: var(--shadow);
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 2px; font-size: 27px; letter-spacing: 0; }
+    h2 { font-size: 22px; margin-bottom: 10px; }
+    h3 { font-size: 17px; margin-bottom: 9px; }
+    .muted { color: var(--muted); }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab, .btn {
+      min-height: 42px; padding: 10px 15px; border-radius: 999px;
+      color: var(--ink); background: rgba(255,255,255,.72); border: 1px solid var(--line);
+      box-shadow: 0 8px 18px rgba(120, 82, 150, .1);
+    }
+    .tab.active, .btn.primary {
+      color: white; font-weight: 900; border-color: transparent;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+    }
+    .btn.mint { background: linear-gradient(135deg, var(--mint), #cff7e8); font-weight: 800; }
+    .btn.warn { background: #fff1f3; color: #a43b55; border-color: #ffd0d8; }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .layout {
+      display: grid; grid-template-columns: 330px minmax(0, 1fr) 330px; gap: 14px; align-items: start;
+    }
+    .panel {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 18px; box-shadow: var(--shadow); backdrop-filter: blur(12px);
+    }
+    .side { position: sticky; top: 14px; max-height: calc(100vh - 28px); overflow: auto; }
+    .row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+    .grid { display: grid; gap: 10px; }
+    .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .stat {
+      padding: 13px; border-radius: 18px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.56);
+    }
+    .stat small { display: block; color: var(--muted); }
+    .stat strong { font-size: 24px; }
+    .subject-list { display: grid; gap: 8px; margin-bottom: 12px; }
+    .subject-btn {
+      width: 100%; display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 13px; border-radius: 18px; background: rgba(255,255,255,.62);
+      color: var(--ink); border: 1px solid var(--line); font-weight: 800;
+    }
+    .subject-btn.active { outline: 3px solid rgba(255,143,199,.36); background: #fff1f8; }
+    .tree { display: grid; gap: 10px; }
+    .tree-layer { display: grid; gap: 8px; position: relative; padding-left: 14px; }
+    .tree-layer::before {
+      content: ""; position: absolute; left: 3px; top: 8px; bottom: -8px; width: 2px;
+      background: linear-gradient(var(--pink2), var(--mint2));
+    }
+    .layer-title { color: var(--muted); font-weight: 900; font-size: 13px; }
+    .node {
+      width: 100%; text-align: left; padding: 12px; border-radius: 18px;
+      border: 2px solid transparent; background: rgba(255,255,255,.6); color: var(--ink);
+      transition: .18s ease; position: relative;
+    }
+    .node.locked { filter: grayscale(1); opacity: .48; cursor: not-allowed; }
+    .node.open { border-color: rgba(183,156,255,.35); }
+    .node.open.level-1 { border-color: rgba(143,229,200,.55); }
+    .node.open.level-2 { border-color: rgba(139,202,255,.55); }
+    .node.open.level-3 { border-color: rgba(255,143,199,.5); }
+    .node.selected { border-color: var(--pink); background: #fff0f7; }
+    .node.lit {
+      border-color: var(--yellow); background: linear-gradient(135deg, #fff7cf, #e5fff4);
+      animation: glow 1.6s ease-in-out infinite alternate;
+    }
+    @keyframes glow { from { box-shadow: 0 0 0 rgba(255,232,146,0); } to { box-shadow: 0 0 22px rgba(255,202,88,.55); } }
+    .badge-pill {
+      display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 999px;
+      background: rgba(255,255,255,.68); border: 1px solid var(--line);
+      color: var(--muted); font-size: 12px; font-weight: 800;
+    }
+    .bar { height: 13px; border-radius: 999px; background: rgba(255,255,255,.75); border: 1px solid var(--line); overflow: hidden; }
+    .bar i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--mint), var(--yellow), var(--pink)); border-radius: inherit; transition: .25s; }
+    .builder { display: grid; gap: 12px; }
+    .field { display: grid; gap: 6px; }
+    .field label { font-weight: 900; color: var(--muted); font-size: 13px; }
+    select, input[type="number"] {
+      width: 100%; padding: 11px 12px; border-radius: 16px; border: 1px solid var(--line);
+      color: var(--ink); background: rgba(255,255,255,.75); outline: 0;
+    }
+    .switches { display: flex; gap: 8px; flex-wrap: wrap; }
+    .switch {
+      padding: 10px 12px; border-radius: 999px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.65); color: var(--ink); font-weight: 800;
+    }
+    .switch.active { background: linear-gradient(135deg, var(--mint), var(--yellow)); }
+    .exam-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px; }
+    .question {
+      padding: 18px; border-radius: 22px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.62); margin-bottom: 12px;
+    }
+    body.focus-guard .question, body.focus-guard .answer-card {
+      -webkit-user-select: none; user-select: none;
+    }
+    .q-title { font-weight: 900; font-size: 19px; margin: 10px 0; }
+    .options { display: grid; gap: 9px; }
+    .opt {
+      display: flex; gap: 10px; align-items: flex-start; padding: 13px; border-radius: 18px;
+      background: rgba(255,255,255,.72); border: 2px solid transparent; cursor: pointer;
+    }
+    .opt.chosen { border-color: var(--pink); background: #fff1f8; }
+    .mark-btn.marked { background: var(--yellow); }
+    .answer-card { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
+    .answer-dot {
+      min-height: 34px; border-radius: 12px; display: grid; place-items: center; font-weight: 900;
+      border: 1px solid var(--line); background: rgba(255,255,255,.68);
+    }
+    .answer-dot.done { background: var(--mint2); color: #227a5c; }
+    .answer-dot.marked { outline: 3px solid rgba(255,232,146,.8); }
+    .answer-dot.wrong { background: #ffe4eb; color: #9b334d; }
+    .answer-dot.right { background: #ddfff1; color: #197b58; }
+    .analysis { display: none; margin-top: 10px; padding: 12px; border-radius: 16px; background: rgba(255,255,255,.6); border: 1px solid var(--line); }
+    .analysis.show { display: block; }
+    .modal {
+      position: fixed; inset: 0; display: none; place-items: center; padding: 18px;
+      background: rgba(65,42,82,.34); z-index: 30;
+    }
+    .modal.show { display: grid; }
+    .modal-box { width: min(560px, 100%); background: var(--card); border-radius: 28px; padding: 24px; box-shadow: var(--shadow); text-align: center; }
+    .toast {
+      position: fixed; right: 18px; bottom: 18px; max-width: 360px; display: none;
+      background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 13px; box-shadow: var(--shadow); z-index: 40;
+    }
+    .toast.show { display: block; }
+    .petal { position: fixed; pointer-events: none; z-index: 35; animation: float 1000ms ease forwards; font-size: 26px; }
+    @keyframes float { to { transform: translateY(-90px) rotate(22deg); opacity: 0; } }
+    .mistake-item, .skin, .medal {
+      padding: 14px; border-radius: 18px; border: 1px solid var(--line); background: rgba(255,255,255,.6);
+    }
+    .guide { text-align: left; }
+    @media (max-width: 1180px) {
+      .layout { grid-template-columns: 280px minmax(0,1fr); }
+      .right-side { position: static; grid-column: 1 / -1; max-height: none; }
+    }
+    @media (max-width: 760px) {
+      .app { width: calc(100vw - 18px); padding-top: 10px; }
+      .top { align-items: stretch; flex-direction: column; }
+      .tabs { display: grid; grid-template-columns: repeat(2, 1fr); }
+      .layout { grid-template-columns: 1fr; }
+      .side { position: static; max-height: none; }
+      .left-side.collapsed, .right-side.collapsed { display: none; }
+      .panel { padding: 14px; border-radius: 20px; }
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+      .exam-head { flex-direction: column; align-items: stretch; }
+      .answer-card { grid-template-columns: repeat(6, 1fr); }
+      .btn, .tab { min-height: 46px; }
+      body.exam-mode { overscroll-behavior: contain; }
+    }
+    @media print {
+      body { background: white; }
+      .top, .left-side, .right-side, .builder, .tabs, .btn, .modal, .toast { display: none !important; }
+      .layout { display: block; }
+      .panel { box-shadow: none; border: 0; }
+      .analysis { display: block !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">✿</div>
+        <div>
+          <h1>花漾中考全科科技树刷题</h1>
+          <div class="muted">七至九年级 · 广州中考风格 · 单文件离线版</div>
+        </div>
+      </div>
+      <nav class="tabs">
+        <button class="tab active" data-tab="study">科技树组卷</button>
+        <button class="tab" data-tab="exam">答题区</button>
+        <button class="tab" data-tab="mistakes">错题本</button>
+        <button class="tab" data-tab="me">个人中心</button>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <aside class="panel side left-side" id="leftSide">
+        <h2>科目科技树</h2>
+        <div class="subject-list" id="subjectList"></div>
+        <div class="row" style="margin-bottom:12px">
+          <button class="btn mint" id="selectUnlockedBtn">一键全选已解锁</button>
+          <button class="btn" id="clearSelectedBtn">清空选择</button>
+        </div>
+        <div id="tree" class="tree"></div>
+      </aside>
+
+      <section class="panel" id="mainPanel">
+        <div id="studyView">
+          <h2>组卷设置</h2>
+          <div class="builder">
+            <div class="grid3">
+              <div class="field"><label>挑战难度</label><select id="difficulty"><option value="easy">简单</option><option value="medium">中等</option><option value="hard">困难</option></select></div>
+              <div class="field"><label>出题模式</label><select id="mode"><option value="real">真题模式</option><option value="mix">综合练习模式</option></select></div>
+              <div class="field"><label>答题时长</label><select id="timeMode"><option value="standard">中考标准时长</option><option value="limit">限时训练 30 分钟</option><option value="free">无计时自由练习</option></select></div>
+            </div>
+            <div class="grid2">
+              <div class="stat"><small>已选知识点</small><strong id="selectedCount">0</strong></div>
+              <div class="stat"><small>预计试卷</small><strong>100分 · 25-30题</strong></div>
+            </div>
+            <div class="row">
+              <button class="btn primary" id="buildBtn">生成试卷并开始</button>
+              <button class="btn" id="guideBtn">新手指引</button>
+            </div>
+          </div>
+          <div style="margin-top:18px">
+            <h2>当前已选知识点</h2>
+            <div class="row" id="selectedTags"></div>
+          </div>
+        </div>
+
+        <div id="examView" class="hidden">
+          <div class="exam-head">
+            <div>
+              <h2 id="paperTitle">今日挑战卷</h2>
+              <div class="row">
+                <span class="badge-pill" id="timer">计时 --:--</span>
+                <span class="badge-pill" id="paperMeta">100分</span>
+                <span class="badge-pill" id="progressText">0/0</span>
+                <span class="badge-pill" id="focusWarn">专注记录 0</span>
+              </div>
+            </div>
+            <div class="row">
+              <button class="btn mark-btn" id="markBtn">标记 M</button>
+              <button class="btn" id="prevBtn">上一题</button>
+              <button class="btn mint" id="nextBtn">下一题</button>
+              <button class="btn primary" id="submitBtn">交卷</button>
+            </div>
+          </div>
+          <div class="bar" style="margin-bottom:12px"><i id="examBar"></i></div>
+          <div id="questionBox"></div>
+        </div>
+
+        <div id="mistakesView" class="hidden">
+          <div class="row" style="justify-content:space-between;margin-bottom:12px">
+            <div><h2>错题本</h2><p class="muted">高频错题优先展示，可重做变式、导出或打印。</p></div>
+            <div class="row">
+              <select id="mistakeSubject"></select>
+              <button class="btn" id="printMistakesBtn">打印错题</button>
+              <button class="btn warn" id="clearMistakesBtn">清空错题</button>
+            </div>
+          </div>
+          <div id="mistakeList" class="grid"></div>
+        </div>
+
+        <div id="meView" class="hidden">
+          <h2>个人中心</h2>
+          <div class="grid3">
+            <div class="stat"><small>总星数</small><strong id="meStars">0</strong></div>
+            <div class="stat"><small>完成率</small><strong id="meRate">0%</strong></div>
+            <div class="stat"><small>已点亮知识点</small><strong id="meLit">0</strong></div>
+          </div>
+          <div style="margin-top:16px">
+            <h3>每日签到</h3>
+            <div class="row"><button class="btn mint" id="checkinBtn">今日签到</button><span id="checkinText" class="muted"></span></div>
+          </div>
+          <div style="margin-top:16px"><h3>勋章</h3><div class="grid3" id="medals"></div></div>
+          <div style="margin-top:16px"><h3>皮肤</h3><div class="grid3" id="skins"></div></div>
+          <div style="margin-top:16px">
+            <h3>视觉调节</h3>
+            <div class="grid3">
+              <div class="field"><label>字号</label><input id="fontSize" type="number" min="90" max="130" step="5"></div>
+              <div class="field"><label>行距</label><input id="lineHeight" type="number" min="130" max="190" step="5"></div>
+              <div class="field"><label>模式</label><select id="visualMode"><option value="">清新模式</option><option value="eye">护眼模式</option><option value="night">夜间模式</option></select></div>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <label class="badge-pill"><input type="checkbox" id="focusGuard"> 开启专注防查模式</label>
+            </div>
+          </div>
+          <div style="margin-top:16px">
+            <h3>数据管理</h3>
+            <div class="row">
+              <button class="btn" id="exportBtn">导出数据</button>
+              <button class="btn" id="importBtn">导入数据</button>
+              <input type="file" id="importFile" accept=".json" class="hidden">
+              <button class="btn warn" id="resetBtn">重置进度</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel side right-side" id="rightSide">
+        <h2>学习数据</h2>
+        <div class="grid2">
+          <div class="stat"><small>星星</small><strong id="stars">0</strong></div>
+          <div class="stat"><small>错题</small><strong id="wrongCount">0</strong></div>
+          <div class="stat"><small>已解锁</small><strong id="openCount">0</strong></div>
+          <div class="stat"><small>已点亮</small><strong id="litCount">0</strong></div>
+        </div>
+        <div style="margin-top:14px">
+          <h3>答题卡</h3>
+          <div class="answer-card" id="answerCard"></div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn" id="jumpMarkedBtn">跳转标记题</button>
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <h3>快捷键</h3>
+          <p class="muted">数字/字母选答案，← → 翻题，M 标记，Enter 下一题。</p>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="modal show" id="guideModal">
+    <div class="modal-box guide">
+      <h2>新手简易指引</h2>
+      <p>1. 先在左侧选择科目和已解锁知识点，可以多选混合组卷。</p>
+      <p>2. 设置难度、真题/综合模式和答题时长后生成试卷。</p>
+      <p>3. 交卷后自动批改；错题会进入错题本，下一轮强制混入同类变式。</p>
+      <p>4. 简单通关得1星解锁中等，中等得2星解锁困难，困难得3星并点亮知识点。</p>
+      <div class="row"><button class="btn primary" id="closeGuideBtn">开始使用</button></div>
+    </div>
+  </div>
+  <div class="modal" id="resultModal"><div class="modal-box" id="resultBox"></div></div>
+  <div class="toast" id="toast"></div>
+
+  <script src="./sync.js"></script>
+  <script>
+    const STORE = "flower_exam_tree_v1";
+    const subjects = ["语文","数学","英语","物理","化学","历史","道法"];
+    const diffName = { easy: "简单", medium: "中等", hard: "困难" };
+    const diffStar = { easy: 1, medium: 2, hard: 3 };
+    const nextDiff = { easy: "medium", medium: "hard", hard: "hard" };
+    const mistakeTags = ["概念不清","审题失误","计算错误","知识盲区"];
+    const skinDefs = [
+      ["默认花漾", ""], ["薄荷晨光", "eye"], ["星月夜读", "night"]
+    ];
+    const medalDefs = [["初绽勋章",5],["连胜少女",10],["星河学霸",20],["中考花冠",35]];
+
+    const graph = buildGraph();
+    const bank = buildBank();
+    let state = load();
+    let currentSubject = state.currentSubject || "数学";
+    let selected = new Set((state.selected || []).filter(topicById));
+    let paper = state.paper || null;
+    let qIndex = state.qIndex || 0;
+    let timerId = null;
+
+    function buildGraph() {
+      const out = {};
+      const topicNames = {};
+      subjects.forEach(sub => { out[sub] = []; topicNames[sub] = {}; });
+      const add = (subject, grade, level, name, prereqNames = []) => {
+        const id = `${subject}-${String(out[subject].length + 1).padStart(3, "0")}`;
+        const topic = {
+          id, subject, name, grade, level, layer: out[subject].length,
+          prereqNames,
+          prereq: [],
+          bankTags: ["专属题库", "中考题型", "同类变式题"],
+          difficultyBands: ["easy", "medium", "hard"]
+        };
+        out[subject].push(topic);
+        topicNames[subject][name] = id;
+      };
+      const addMany = (subject, grade, level, names, prereqNames = []) => names.forEach(name => add(subject, grade, level, name, prereqNames));
+
+      addMany("数学", "七年级上册", 1, ["有理数概念与分类","数轴、相反数、绝对值","有理数加减法","有理数乘除、乘方运算","整式相关概念","整式的加减运算","一元一次方程概念与解法","直线、射线、线段","角的认识、角度换算与计算"]);
+      add("数学", "七年级上册延伸", 2, "一元一次方程实际应用", ["一元一次方程概念与解法"]);
+      addMany("数学", "七年级下册", 1, ["相交线与邻补角","平行线判定与性质","平方根立方根与实数","平面直角坐标系基础","二元一次方程组解法","一元一次不等式与不等式组","数据收集与统计图表"]);
+      add("数学", "七年级下册", 2, "点的坐标变换与位置判断", ["平面直角坐标系基础"]);
+      add("数学", "七年级下册", 2, "二元一次方程组实际应用", ["二元一次方程组解法"]);
+      add("数学", "八年级上册", 2, "三角形三边关系、内角和", ["角的认识、角度换算与计算"]);
+      add("数学", "八年级上册", 2, "全等三角形判定与性质", ["三角形三边关系、内角和"]);
+      add("数学", "八年级上册", 2, "轴对称、等腰三角形", ["全等三角形判定与性质"]);
+      add("数学", "八年级上册", 2, "整式乘法与因式分解", ["整式的加减运算"]);
+      add("数学", "八年级上册", 2, "分式概念与运算", ["整式乘法与因式分解"]);
+      add("数学", "八年级上册", 3, "分式方程解法与应用", ["分式概念与运算"]);
+      add("数学", "八年级下册", 2, "二次根式化简与运算", ["平方根立方根与实数"]);
+      add("数学", "八年级下册", 2, "勾股定理及逆定理", ["三角形三边关系、内角和"]);
+      add("数学", "八年级下册", 2, "平行四边形性质与判定", ["全等三角形判定与性质"]);
+      add("数学", "八年级下册", 2, "一次函数图像与性质", ["平面直角坐标系基础"]);
+      add("数学", "八年级下册", 3, "矩形、菱形、正方形", ["平行四边形性质与判定"]);
+      add("数学", "八年级下册", 3, "一次函数综合应用", ["一次函数图像与性质"]);
+      add("数学", "九年级上册", 3, "一元二次方程解法", ["一元一次方程概念与解法"]);
+      add("数学", "九年级上册", 3, "一元二次方程根的判别式与实际应用", ["一元二次方程解法"]);
+      add("数学", "九年级上册", 3, "旋转、中心对称", ["轴对称、等腰三角形"]);
+      add("数学", "九年级上册", 3, "圆的基本性质、圆心角与圆周角", ["角的认识、角度换算与计算"]);
+      add("数学", "九年级上册", 3, "点、直线、圆的位置关系", ["圆的基本性质、圆心角与圆周角"]);
+      add("数学", "九年级上册", 3, "概率初步", ["数据收集与统计图表"]);
+      add("数学", "九年级下册", 3, "反比例函数图像与性质", ["一次函数图像与性质"]);
+      add("数学", "九年级下册", 3, "相似三角形判定与性质", ["全等三角形判定与性质"]);
+      add("数学", "九年级下册", 3, "锐角三角函数基础", ["勾股定理及逆定理"]);
+      add("数学", "九年级下册", 3, "解直角三角形及实际应用", ["锐角三角函数基础"]);
+      add("数学", "九年级下册", 3, "二次函数图像与基础性质", ["一次函数图像与性质","一元二次方程解法"]);
+      add("数学", "九年级下册", 3, "二次函数综合压轴应用", ["二次函数图像与基础性质"]);
+
+      addMany("语文", "七年级上册", 1, ["字音字形与词语辨析","病句与标点运用","文学常识与名著导读","课内现代文基础阅读","课内古诗词背诵理解","课内文言文字词基础"]);
+      add("语文", "七年级上册", 2, "现代文阅读答题技巧", ["课内现代文基础阅读"]);
+      add("语文", "七年级上册", 2, "文言文翻译与内容理解", ["课内文言文字词基础"]);
+      addMany("语文", "七年级下册", 1, ["成语运用与拓展字词","语句衔接与句式仿写","课内古诗词赏析","课内文言文重点字词"]);
+      add("语文", "七年级下册", 2, "文言文对比阅读", ["课内文言文字词基础","课内文言文重点字词"]);
+      add("语文", "七年级下册", 2, "记叙文阅读专项", ["现代文阅读答题技巧"]);
+      add("语文", "八年级上册", 2, "说明文基础与说明方法", ["记叙文阅读专项"]);
+      add("语文", "八年级上册", 2, "古诗词深度鉴赏", ["课内古诗词赏析"]);
+      add("语文", "八年级上册", 2, "课外浅易文言文阅读", ["课内文言文重点字词"]);
+      add("语文", "八年级上册", 3, "说明文综合阅读应用", ["说明文基础与说明方法"]);
+      add("语文", "八年级下册", 2, "议论文基础（论点、论据、论证）", ["记叙文阅读专项"]);
+      add("语文", "八年级下册", 2, "课内古诗文综合理解默写", ["课内古诗词赏析","课内文言文重点字词"]);
+      add("语文", "八年级下册", 3, "议论文阅读专项训练", ["议论文基础（论点、论据、论证）"]);
+      addMany("语文", "九年级全册", 3, ["中考字词成语病句综合训练","古诗文默写与鉴赏综合题型","课内外文言文对比阅读","三大文体综合阅读","中考名著考点","综合性学习题型"], ["议论文阅读专项训练"]);
+
+      addMany("英语", "七年级上册", 1, ["上册核心词汇短语","名词代词基础","一般现在时基础","基础情景交际"]);
+      add("英语", "七年级上册", 2, "一般现在时综合运用", ["一般现在时基础"]);
+      addMany("英语", "七年级下册", 1, ["下册核心词汇短语","情态动词与介词","现在进行时&一般过去时基础"]);
+      add("英语", "七年级下册", 2, "时态辨析运用", ["一般现在时综合运用","现在进行时&一般过去时基础"]);
+      add("英语", "七年级下册", 2, "简单句型转换", ["名词代词基础","基础情景交际"]);
+      add("英语", "八年级上册", 2, "本册核心词汇与固定搭配", ["上册核心词汇短语","下册核心词汇短语"]);
+      add("英语", "八年级上册", 2, "形容词副词比较级最高级", ["名词代词基础"]);
+      add("英语", "八年级上册", 2, "一般将来时&过去进行时基础", ["时态辨析运用"]);
+      add("英语", "八年级上册", 3, "多时态混合辨析与句型综合运用", ["一般将来时&过去进行时基础","简单句型转换"]);
+      add("英语", "八年级下册", 2, "本册核心词汇短语", ["本册核心词汇与固定搭配"]);
+      add("英语", "八年级下册", 2, "状语从句与非谓语动词入门", ["简单句型转换"]);
+      add("英语", "八年级下册", 3, "完形填空基础", ["本册核心词汇短语","状语从句与非谓语动词入门"]);
+      add("英语", "八年级下册", 3, "阅读理解基础", ["本册核心词汇短语","状语从句与非谓语动词入门"]);
+      addMany("英语", "九年级全册", 3, ["中考大纲词汇短语","初中八大时态综合辨析","宾语从句&状语从句专项","完形填空综合题型","阅读与任务型阅读","书面表达基础句型"], ["多时态混合辨析与句型综合运用"]);
+
+      addMany("物理", "八年级上册", 1, ["机械运动","声现象","光的直线传播与反射","物态变化"]);
+      add("物理", "八年级上册", 2, "光的折射与透镜成像", ["光的直线传播与反射"]);
+      addMany("物理", "八年级下册", 2, ["质量与密度","力/弹力/重力","二力平衡与摩擦力","固体压强"], ["机械运动"]);
+      add("物理", "八年级下册", 3, "液体压强与大气压强", ["固体压强"]);
+      add("物理", "八年级下册", 3, "浮力计算", ["液体压强与大气压强"]);
+      add("物理", "八年级下册", 3, "杠杆与滑轮", ["力/弹力/重力"]);
+      add("物理", "八年级下册", 3, "功与功率及机械效率", ["杠杆与滑轮"]);
+      addMany("物理", "九年级全册", 3, ["电路串并联识别","电流电压电阻","欧姆定律","电功率与电功","家庭电路与安全用电","电与磁","内能与比热容"], ["功与功率及机械效率"]);
+
+      addMany("化学", "九年级上册", 1, ["物质构成","空气与氧气","水的相关知识","元素化学式与化合价"]);
+      add("化学", "九年级上册", 2, "化学方程式书写与计算", ["元素化学式与化合价"]);
+      add("化学", "九年级上册", 2, "碳和碳的氧化物", ["空气与氧气"]);
+      addMany("化学", "九年级下册", 3, ["金属材料与金属活动性","金属综合计算与实验","溶液与溶质质量分数","酸碱盐基础","酸碱盐综合推断与计算","化学与生活相关知识点"], ["化学方程式书写与计算"]);
+
+      addMany("历史", "七年级上册", 1, ["史前时期","夏商周历史","秦汉大一统王朝"]);
+      add("历史", "七年级上册", 2, "三国两晋南北朝历史", ["秦汉大一统王朝"]);
+      addMany("历史", "七年级下册", 1, ["隋唐历史","宋元历史"]);
+      add("历史", "七年级下册", 2, "明清历史", ["宋元历史"]);
+      addMany("历史", "八年级", 2, ["列强侵华战争","近代化探索","新民主主义革命兴起"], ["明清历史"]);
+      addMany("历史", "八年级", 3, ["抗日战争与解放战争","新中国发展历程"], ["新民主主义革命兴起"]);
+      addMany("历史", "九年级", 3, ["古代亚非与欧洲文明","近代化开端","资本主义制度确立","两次工业革命","两次世界大战与战后格局","现代科技与全球化"], ["新中国发展历程"]);
+
+      addMany("道法", "七年级", 1, ["中学成长与自我认知","友谊与师生亲情","青春情绪与情感","集体生活与规则"]);
+      add("道法", "七年级", 2, "法律基础与未成年人特殊保护", ["集体生活与规则"]);
+      addMany("道法", "八年级", 2, ["社会规则与网络生活","国家利益与国家安全","宪法基础与公民权利义务","国家机构"], ["法律基础与未成年人特殊保护"]);
+      add("道法", "八年级", 3, "违法犯罪与依法办事", ["法律基础与未成年人特殊保护"]);
+      addMany("道法", "九年级", 3, ["改革开放与创新发展","民主与法治","中华文化与生态文明","民族团结与中国梦","国际格局与中国发展"], ["违法犯罪与依法办事"]);
+
+      subjects.forEach(subject => {
+        out[subject].forEach(topic => {
+          topic.prereq = topic.prereqNames.map(name => topicNames[subject][name]).filter(Boolean);
+        });
+      });
+      return out;
+    }
+
+    function buildBank() {
+      const out = [];
+      subjects.forEach(sub => graph[sub].forEach(topic => {
+        ["easy","medium","hard"].forEach((diff, di) => {
+          for (let n = 1; n <= 5; n++) out.push(makeQuestion(sub, topic, diff, n, di));
+        });
+      }));
+      return out;
+    }
+
+    function makeQuestion(sub, topic, diff, n, di) {
+      const multi = n % 5 === 0;
+      const score = diff === "easy" ? 3 : diff === "medium" ? 4 : 5;
+      const source = n % 2 ? "广州中考真题风格" : "广州中考变式题";
+      const common = { id: `${topic.id}-${diff}-${n}`, subject: sub, topicId: topic.id, topic: topic.name, diff, score, type: multi ? "多选" : "单选", source };
+      const maps = {
+        "数学": [`若一次函数 y=${n+1}x+${di+2}，它与 y 轴交点纵坐标是？`, ["1", String(di+2), String(n+1), String(n+di+3)], [String(di+2)], "令 x=0，y 轴交点纵坐标就是常数项。"],
+        "物理": [`小车 ${n+4}s 行驶 ${(n+4)*(di+3)}m，平均速度是？`, [`${di+3}m/s`, `${n+4}m/s`, `${di+5}m/s`, `${n}m/s`], [`${di+3}m/s`], "速度=路程÷时间。"],
+        "英语": [`Choose the best answer: She ____ Guangzhou since 2024.`, ["has lived","lived","is living","live"], ["has lived"], "since 引导过去时间点，常与现在完成时连用。"],
+        "语文": [`下列关于“${topic.name}”类题目的答题方法，最恰当的是？`, ["先抓关键词再结合语境","只看题目长度","完全凭感觉","忽略文本内容"], ["先抓关键词再结合语境"], "语文阅读题要回到文本，结合语境作答。"],
+        "化学": [`关于${topic.name}，下列说法正确的是？`, ["化学变化常伴随新物质生成","物理变化一定生成新物质","氧气不能支持燃烧","空气只有氧气"], ["化学变化常伴随新物质生成"], "化学变化的核心特征是有新物质生成。"],
+        "历史": [`学习“${topic.name}”时，分析历史事件首先应关注？`, ["背景、经过、影响","字体大小","插图颜色","页码"], ["背景、经过、影响"], "历史事件分析通常从背景、过程、结果和影响入手。"],
+        "道法": [`面对“${topic.name}”情境，正确做法是？`, ["依法自律并承担责任","只顾自己方便","逃避规则约束","传播未经证实信息"], ["依法自律并承担责任"], "道法情境题要结合法律、规则、责任作判断。"]
+      };
+      const m = maps[sub];
+      if (multi) {
+        return { ...common, prompt: `多选：${m[0]}（选出所有正确项）`, options: [...m[1], "认真审题、联系考点"], answer: [m[2][0], "认真审题、联系考点"], explain: m[3] + " 多选题要选全且不多选。", score: score + 1 };
+      }
+      return { ...common, prompt: m[0], options: m[1], answer: m[2], explain: m[3] };
+    }
+
+    function defaults() {
+      const unlocked = {};
+      subjects.forEach(s => graph[s].filter(t => t.level === 1).forEach(t => {
+        unlocked[t.id] = { easy: true, medium: false, hard: false, lit: false };
+      }));
+      return {
+        currentSubject: "数学", selected: [], unlocked, stars: 0, mistakes: [], history: [],
+        checkins: [], settings: { font: 100, line: 155, visual: "", focusGuard: true }, paper: null, qIndex: 0, first: true
+      };
+    }
+    function load() { try { return { ...defaults(), ...(JSON.parse(localStorage.getItem(STORE)) || {}) }; } catch { return defaults(); } }
+    function save() {
+      state.currentSubject = currentSubject;
+      state.selected = [...selected];
+      state.paper = paper;
+      state.qIndex = qIndex;
+      window.practiceCloudSync?.save(state);
+      localStorage.setItem(STORE, JSON.stringify(state));
+    }
+    const $ = id => document.getElementById(id);
+    const today = () => new Date().toISOString().slice(0,10);
+
+    function renderAll() {
+      applySettings(); renderSubjects(); renderTree(); renderStats(); renderSelected(); renderAnswerCard(); renderMistakes(); renderMe();
+    }
+    function renderSubjects() {
+      $("subjectList").innerHTML = subjects.map(s => `<button class="subject-btn ${s===currentSubject?"active":""}" data-sub="${s}"><span>${icon(s)} ${s}</span><span>${subjectProgress(s)}%</span></button>`).join("");
+      document.querySelectorAll(".subject-btn").forEach(b => b.onclick = () => { currentSubject = b.dataset.sub; renderAll(); });
+      $("mistakeSubject").innerHTML = `<option value="">全部科目</option>` + subjects.map(s => `<option>${s}</option>`).join("");
+    }
+    function renderTree() {
+      let lastGroup = "";
+      const levelName = { 1: "一级基础层", 2: "二级进阶层", 3: "三级综合/重难点层" };
+      $("tree").innerHTML = graph[currentSubject].map(t => {
+        const st = getTopic(t.id);
+        const locked = !isTopicOpen(t);
+        const sel = selected.has(t.id);
+        const group = `${t.grade} · ${levelName[t.level]}`;
+        const groupTitle = group === lastGroup ? "" : `<div class="layer-title">${group}</div>`;
+        lastGroup = group;
+        const prereq = t.prereqNames.length ? `前置：${t.prereqNames.join("、")}` : "初始默认解锁";
+        return `${groupTitle}<div class="tree-layer"><button class="node level-${t.level} ${locked?"locked":st.lit?"lit":"open"} ${sel?"selected":""}" data-id="${t.id}" ${locked?"disabled":""}>
+          <b>${st.lit ? "💖" : locked ? "🔒" : "🌷"} ${t.name}</b><br>
+          <span class="muted">${levelName[t.level]} · ${difficultyStatus(st)}</span><br>
+          <span class="muted">${prereq}</span>
+        </button></div>`;
+      }).join("");
+      document.querySelectorAll(".node:not(.locked)").forEach(n => n.onclick = () => { selected.has(n.dataset.id) ? selected.delete(n.dataset.id) : selected.add(n.dataset.id); save(); renderAll(); });
+    }
+    function renderSelected() {
+      $("selectedCount").textContent = selected.size;
+      $("selectedTags").innerHTML = [...selected].map(id => `<span class="badge-pill">${topicById(id).subject} · ${topicById(id).name}</span>`).join("") || `<span class="muted">还没有选择知识点</span>`;
+    }
+    function renderStats() {
+      const all = subjects.flatMap(s => graph[s]);
+      $("stars").textContent = state.stars;
+      $("wrongCount").textContent = state.mistakes.length;
+      $("openCount").textContent = all.filter(isTopicOpen).length;
+      $("litCount").textContent = all.filter(t => getTopic(t.id).lit).length;
+    }
+    function renderAnswerCard() {
+      if (!paper) { $("answerCard").innerHTML = `<span class="muted">暂无试卷</span>`; return; }
+      $("answerCard").innerHTML = paper.questions.map((q,i) => {
+        const ans = paper.answers[q.uid];
+        const res = paper.result?.items?.find(x => x.uid === q.uid);
+        return `<button class="answer-dot ${ans?.length?"done":""} ${paper.marks[q.uid]?"marked":""} ${res?res.correct?"right":"wrong":""}" data-jump="${i}">${i+1}</button>`;
+      }).join("");
+      document.querySelectorAll("[data-jump]").forEach(b => b.onclick = () => { qIndex = Number(b.dataset.jump); save(); showTab("exam"); renderQuestion(); });
+    }
+    function renderQuestion() {
+      if (!paper) { $("questionBox").innerHTML = `<p class="muted">请先生成试卷。</p>`; return; }
+      document.body.classList.add("exam-mode");
+      const q = paper.questions[qIndex];
+      const ans = paper.answers[q.uid] || [];
+      $("paperTitle").textContent = `${q.subject} · ${q.topic}挑战`;
+      $("paperMeta").textContent = `${paper.total}分 · ${paper.mode === "real" ? "真题模式" : "综合练习"}`;
+      $("progressText").textContent = `${qIndex + 1}/${paper.questions.length}`;
+      $("focusWarn").textContent = `专注记录 ${paper.focusEvents?.length || 0}`;
+      $("examBar").style.width = `${Math.round((Object.values(paper.answers).filter(a => a.length).length / paper.questions.length) * 100)}%`;
+      $("markBtn").classList.toggle("marked", !!paper.marks[q.uid]);
+      $("questionBox").innerHTML = `<div class="question">
+        <div class="row"><span class="badge-pill">${q.type}</span><span class="badge-pill">${q.score}分</span><span class="badge-pill">${diffName[q.diff]}</span><span class="badge-pill">考点：${q.topic}</span><span class="badge-pill">${q.source}</span></div>
+        <div class="q-title">${qIndex + 1}. ${q.prompt}</div>
+        <div class="options">${q.options.map((o,i) => `<label class="opt ${ans.includes(o)?"chosen":""}"><input type="${q.type==="多选"?"checkbox":"radio"}" name="opt" value="${escapeHtml(o)}" ${ans.includes(o)?"checked":""}> <b>${String.fromCharCode(65+i)}.</b> ${escapeHtml(o)}</label>`).join("")}</div>
+        ${paper.result ? `<button class="btn" style="margin-top:12px" onclick="toggleAnalysis()">展开/收起解析</button><div class="analysis" id="analysis"><b>${paper.result.items.find(x=>x.uid===q.uid)?.correct?"正确":"错误"}</b> · 答案：${q.answer.join("、")}<br>${q.explain}</div>` : ""}
+      </div>`;
+      document.querySelectorAll(".opt").forEach(label => label.onclick = () => setTimeout(() => collectAnswer(q), 0));
+      renderAnswerCard(); save();
+    }
+    window.toggleAnalysis = () => $("analysis")?.classList.toggle("show");
+    function collectAnswer(q) {
+      paper.answers[q.uid] = [...document.querySelectorAll("input[name='opt']:checked")].map(x => x.value);
+      save(); renderQuestion();
+    }
+    function buildPaper() {
+      if (!selected.size) return toast("请先选择至少一个已解锁知识点。");
+      selected = new Set([...selected].filter(id => {
+        const topic = topicById(id);
+        return topic && isTopicOpen(topic);
+      }));
+      if (!selected.size) return toast("已过滤锁定知识点，请重新选择可挑战节点。");
+      const diff = $("difficulty").value;
+      const mode = $("mode").value;
+      const chosenTopics = [...selected].map(topicById);
+      const questions = [];
+      const prevMistakes = state.mistakes.slice().sort((a,b)=>b.count-a.count).slice(0,5);
+      prevMistakes.forEach(m => {
+        const source = bank.find(q => q.topicId === m.topicId && q.type === m.type) || bank.find(q => q.topicId === m.topicId);
+        if (source) questions.push({ ...source, uid: "v-" + source.id + "-" + questions.length, prompt: "【错题变式】" + source.prompt, source: "错题同类变式" });
+      });
+      let pool = bank.filter(q => selected.has(q.topicId) && q.diff === diff);
+      if (mode === "real") pool = pool.filter(q => q.source.includes("真题")).concat(pool);
+      let i = 0;
+      while (questions.length < 26 && pool.length) {
+        const item = pool[i % pool.length];
+        questions.push({ ...item, uid: item.id + "-" + questions.length });
+        i++;
+      }
+      let total = questions.reduce((s,q)=>s+q.score,0);
+      questions.forEach(q => q.score = Math.max(1, Math.round(q.score * 100 / total)));
+      const delta = 100 - questions.reduce((s,q)=>s+q.score,0);
+      questions[0].score += delta;
+      paper = { created: Date.now(), diff, mode, timeMode: $("timeMode").value, topics: chosenTopics.map(t=>t.id), questions, answers: {}, marks: {}, result: null, total: 100, start: Date.now(), seconds: timeLimit($("timeMode").value), focusEvents: [] };
+      qIndex = 0; save(); showTab("exam"); startTimer(); renderQuestion(); toast("试卷已生成，答案会实时保存。");
+      enterFocusGuard();
+    }
+    function timeLimit(mode) { return mode === "standard" ? 7200 : mode === "limit" ? 1800 : 0; }
+    function startTimer() {
+      clearInterval(timerId);
+      timerId = setInterval(() => {
+        if (!paper) return;
+        if (!paper.seconds) { $("timer").textContent = "自由练习"; return; }
+        const used = Math.floor((Date.now() - paper.start) / 1000);
+        const left = Math.max(0, paper.seconds - used);
+        $("timer").textContent = `${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
+        if (left <= 0 && !paper.result) submitPaper();
+      }, 500);
+    }
+    function submitPaper() {
+      if (!paper || paper.result) return;
+      if (!confirm("确定交卷吗？交卷后会立即批改。")) return;
+      const items = paper.questions.map(q => {
+        const ans = (paper.answers[q.uid] || []).slice().sort();
+        const right = q.answer.slice().sort();
+        const correct = JSON.stringify(ans) === JSON.stringify(right);
+        return { uid: q.uid, correct, score: correct ? q.score : 0 };
+      });
+      const score = items.reduce((s,x)=>s+x.score,0);
+      paper.result = { score, items, at: Date.now() };
+      const wrongs = paper.questions.filter(q => !items.find(x=>x.uid===q.uid).correct);
+      wrongs.forEach(addMistake);
+      const allWrongVariantsRight = !paper.questions.some(q => q.source === "错题同类变式" && !items.find(x=>x.uid===q.uid).correct);
+      const pass = score >= 90 && allWrongVariantsRight;
+      if (pass) passTopics(); else failPetal();
+      state.history.unshift({ date: today(), score, diff: paper.diff, count: paper.questions.length, pass, focusEvents: paper.focusEvents?.length || 0 });
+      save(); renderAll(); renderQuestion(); showResult(score, pass);
+      exitFocusGuard();
+    }
+    function passTopics() {
+      paper.topics.forEach(id => {
+        const st = getTopic(id);
+        state.stars += diffStar[paper.diff];
+        if (paper.diff === "hard") { st.lit = true; unlockDependents(id); flower(); }
+        else st[nextDiff[paper.diff]] = true;
+      });
+    }
+    function unlockDependents(id) {
+      const t = topicById(id);
+      graph[t.subject].filter(x => x.prereq.includes(id) && x.prereq.every(pid => getTopic(pid).lit)).forEach(next => {
+        getTopic(next.id).easy = true;
+      });
+    }
+    function addMistake(q) {
+      const key = q.topicId + "-" + q.prompt;
+      const old = state.mistakes.find(m => m.key === key);
+      if (old) { old.count++; old.date = today(); old.tag = classify(q); }
+      else state.mistakes.push({ key, subject: q.subject, topicId: q.topicId, topic: q.topic, prompt: q.prompt, answer: q.answer, explain: q.explain, type: q.type, tag: classify(q), count: 1, date: today() });
+    }
+    function classify(q) {
+      if (q.subject === "数学" || q.subject === "物理" || q.subject === "化学") return "计算错误";
+      if (q.type === "多选") return "审题失误";
+      return mistakeTags[Math.abs(hash(q.prompt)) % mistakeTags.length];
+    }
+    function showResult(score, pass) {
+      const focusCount = paper.focusEvents?.length || 0;
+      $("resultBox").innerHTML = `<div style="font-size:54px">${pass?"🌸":"💗"}</div><h2>${pass?"通关成功":"本次未通关"}</h2><p>得分：${score} / 100</p><p>专注记录：${focusCount} 次离开/复制/右键等行为</p><p>${pass?"已获得星星并解锁新内容。":"通关需要总分≥90且错题变式全对，错题已进入错题本。"}</p><button class="btn primary" onclick="closeResult()">知道啦</button>`;
+      $("resultModal").classList.add("show");
+    }
+    window.closeResult = () => $("resultModal").classList.remove("show");
+    function renderMistakes() {
+      const sub = $("mistakeSubject")?.value || "";
+      const list = state.mistakes.filter(m => !sub || m.subject === sub).sort((a,b)=>b.count-a.count);
+      $("mistakeList").innerHTML = list.map(m => `<div class="mistake-item"><div class="row"><span class="badge-pill">${m.subject}</span><span class="badge-pill">${m.topic}</span><span class="badge-pill">${m.tag}</span><span class="badge-pill">错${m.count}次</span></div><b>${m.prompt}</b><p>答案：${m.answer.join("、")}</p><p class="muted">${m.explain}</p><button class="btn mint" onclick="redoMistake('${m.key}')">重做同类变式</button></div>`).join("") || `<p class="muted">暂无错题。</p>`;
+    }
+    window.redoMistake = key => {
+      const m = state.mistakes.find(x=>x.key===key);
+      if (!m) return;
+      selected = new Set([m.topicId]); $("difficulty").value = "easy"; buildPaper();
+    };
+    function renderMe() {
+      const all = subjects.flatMap(s=>graph[s]);
+      const lit = all.filter(t=>getTopic(t.id).lit).length;
+      $("meStars").textContent = state.stars;
+      $("meLit").textContent = lit;
+      $("meRate").textContent = Math.round(lit / all.length * 100) + "%";
+      $("checkinText").textContent = state.checkins.includes(today()) ? "今天已签到" : "今天还未签到";
+      $("medals").innerHTML = medalDefs.map(([n,need]) => `<div class="medal"><b>${state.stars>=need?"🏅":"🔒"} ${n}</b><p class="muted">${need}星解锁</p></div>`).join("");
+      $("skins").innerHTML = skinDefs.map(([n,v],i) => `<button class="skin" ${state.stars<15 && i>0?"disabled":""} onclick="setSkin('${v}')"><b>${state.settings.visual===v?"✨":"🎀"} ${n}</b><p class="muted">${i===0?"默认可用":"15星解锁"}</p></button>`).join("");
+      $("fontSize").value = state.settings.font; $("lineHeight").value = state.settings.line; $("visualMode").value = state.settings.visual; $("focusGuard").checked = state.settings.focusGuard !== false;
+    }
+    window.setSkin = v => { state.settings.visual = v; save(); renderMe(); applySettings(); };
+    function applySettings() {
+      document.body.classList.toggle("eye", state.settings.visual === "eye");
+      document.body.classList.toggle("night", state.settings.visual === "night");
+      document.body.classList.toggle("focus-guard", state.settings.focusGuard !== false);
+      document.documentElement.style.setProperty("--fontScale", state.settings.font / 100);
+      document.documentElement.style.setProperty("--lineScale", state.settings.line / 100);
+    }
+    function showTab(tab) {
+      ["study","exam","mistakes","me"].forEach(x => {
+        $(x+"View")?.classList.toggle("hidden", x !== tab);
+        document.querySelector(`[data-tab="${x}"]`)?.classList.toggle("active", x === tab);
+      });
+      if (tab === "exam") renderQuestion();
+      if (tab === "mistakes") renderMistakes();
+      if (tab === "me") renderMe();
+    }
+    function getTopic(id) {
+      state.unlocked[id] ||= { easy:false, medium:false, hard:false, lit:false };
+      const topic = topicById(id);
+      if (topic?.level === 1) state.unlocked[id].easy = true;
+      return state.unlocked[id];
+    }
+    function isTopicOpen(t) {
+      if (t.level === 1) return true;
+      return t.prereq.every(id => getTopic(id).lit) || getTopic(t.id).easy;
+    }
+    function topicById(id) { return subjects.flatMap(s=>graph[s]).find(t=>t.id===id); }
+    function difficultyStatus(st) { return st.lit ? "已点亮" : `简${st.easy?"✓":"·"} 中${st.medium?"✓":"·"} 难${st.hard?"✓":"·"}`; }
+    function subjectProgress(s) { return Math.round(graph[s].filter(t=>getTopic(t.id).lit).length / graph[s].length * 100); }
+    function icon(s) { return ({语文:"📖",数学:"🔢",英语:"🔤",物理:"💡",化学:"⚗️",历史:"🏛️",道法:"⚖️"})[s]; }
+    function toast(t) { $("toast").textContent = t; $("toast").classList.add("show"); setTimeout(()=>$("toast").classList.remove("show"),2500); }
+    function recordFocusEvent(type) {
+      if (!paper || paper.result || state.settings.focusGuard === false) return;
+      paper.focusEvents ||= [];
+      paper.focusEvents.push({ type, at: Date.now(), q: qIndex + 1 });
+      save();
+      $("focusWarn").textContent = `专注记录 ${paper.focusEvents.length}`;
+      toast("已记录一次离开答题页/复制等行为，请专心完成本卷。");
+    }
+    function enterFocusGuard() {
+      if (state.settings.focusGuard === false) return;
+      document.body.classList.add("focus-guard");
+      if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+    }
+    function exitFocusGuard() {
+      if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+    }
+    function flower() { for(let i=0;i<10;i++){ const p=document.createElement("div"); p.className="petal"; p.textContent=i%2?"🌸":"💖"; p.style.left=45+Math.random()*20+"vw"; p.style.top=55+Math.random()*15+"vh"; document.body.appendChild(p); setTimeout(()=>p.remove(),1000); } }
+    function failPetal() { toast("错题已经自动保存，下一轮会强制混入变式题。"); }
+    function hash(s) { let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return h; }
+    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+    $("closeGuideBtn").onclick = () => { $("guideModal").classList.remove("show"); state.first=false; save(); };
+    $("guideBtn").onclick = () => $("guideModal").classList.add("show");
+    if (!state.first) $("guideModal").classList.remove("show");
+    $("selectUnlockedBtn").onclick = () => { graph[currentSubject].filter(isTopicOpen).forEach(t=>selected.add(t.id)); save(); renderAll(); };
+    $("clearSelectedBtn").onclick = () => { selected.clear(); save(); renderAll(); };
+    $("buildBtn").onclick = buildPaper;
+    $("prevBtn").onclick = () => { if(paper) { qIndex=Math.max(0,qIndex-1); renderQuestion(); } };
+    $("nextBtn").onclick = () => { if(paper) { qIndex=Math.min(paper.questions.length-1,qIndex+1); renderQuestion(); } };
+    $("markBtn").onclick = () => { if(!paper)return; const q=paper.questions[qIndex]; paper.marks[q.uid]=!paper.marks[q.uid]; save(); renderQuestion(); };
+    $("submitBtn").onclick = submitPaper;
+    $("jumpMarkedBtn").onclick = () => { if(!paper)return; const i=paper.questions.findIndex(q=>paper.marks[q.uid]); if(i>=0){ qIndex=i; renderQuestion(); } else toast("暂无标记题。"); };
+    $("mistakeSubject").onchange = renderMistakes;
+    $("printMistakesBtn").onclick = () => window.print();
+    $("clearMistakesBtn").onclick = () => { if(confirm("确定清空全部错题？此操作不可撤销。") && confirm("请再次确认：真的清空错题本吗？")) { state.mistakes=[]; save(); renderAll(); } };
+    $("checkinBtn").onclick = () => { if(!state.checkins.includes(today())) { state.checkins.push(today()); state.stars++; save(); renderAll(); flower(); } else toast("今天已经签到啦。"); };
+    $("fontSize").oninput = e => { state.settings.font = Number(e.target.value); save(); applySettings(); };
+    $("lineHeight").oninput = e => { state.settings.line = Number(e.target.value); save(); applySettings(); };
+    $("visualMode").onchange = e => { state.settings.visual = e.target.value; save(); applySettings(); };
+    $("focusGuard").onchange = e => { state.settings.focusGuard = e.target.checked; save(); applySettings(); toast(e.target.checked ? "专注防查模式已开启。" : "专注防查模式已关闭。"); };
+    $("exportBtn").onclick = () => { const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:"application/json"})); a.download="花漾中考刷题数据.json"; a.click(); URL.revokeObjectURL(a.href); };
+    $("importBtn").onclick = () => $("importFile").click();
+    $("importFile").onchange = e => { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{ try{ state={...defaults(),...JSON.parse(r.result)}; save(); renderAll(); toast("导入成功。"); }catch{ toast("导入失败。"); } }; r.readAsText(f); };
+    $("resetBtn").onclick = () => { if(confirm("确定重置全部进度？") && confirm("二次确认：星星、错题、科技树都会清空。")) { state=defaults(); selected=new Set(); paper=null; qIndex=0; save(); renderAll(); showTab("study"); } };
+    document.addEventListener("keydown", e => {
+      if ($("examView").classList.contains("hidden") || !paper) return;
+      const q = paper.questions[qIndex];
+      if (/^[1-9]$/.test(e.key)) document.querySelectorAll("input[name='opt']")[Number(e.key)-1]?.click();
+      if (/^[a-zA-Z]$/.test(e.key)) document.querySelectorAll("input[name='opt']")[e.key.toUpperCase().charCodeAt(0)-65]?.click();
+      if (e.key === "ArrowRight") $("nextBtn").click();
+      if (e.key === "ArrowLeft") $("prevBtn").click();
+      if (e.key.toLowerCase() === "m") $("markBtn").click();
+      if (e.key === "Enter") $("nextBtn").click();
+    });
+    document.addEventListener("visibilitychange", () => { if (document.hidden) recordFocusEvent("离开页面"); });
+    window.addEventListener("blur", () => recordFocusEvent("切换窗口"));
+    document.addEventListener("copy", e => { if (!$("examView").classList.contains("hidden") && state.settings.focusGuard !== false) { e.preventDefault(); recordFocusEvent("复制题目"); } });
+    document.addEventListener("cut", e => { if (!$("examView").classList.contains("hidden") && state.settings.focusGuard !== false) { e.preventDefault(); recordFocusEvent("剪切内容"); } });
+    document.addEventListener("contextmenu", e => { if (!$("examView").classList.contains("hidden") && state.settings.focusGuard !== false) { e.preventDefault(); recordFocusEvent("右键菜单"); } });
+    let touchX = 0;
+    document.addEventListener("touchstart", e => touchX = e.changedTouches[0].clientX, {passive:true});
+    document.addEventListener("touchend", e => {
+      if ($("examView").classList.contains("hidden")) return;
+      const dx = e.changedTouches[0].clientX - touchX;
+      if (dx > 80) $("prevBtn").click();
+      if (dx < -80) $("nextBtn").click();
+    }, {passive:true});
+
+    renderAll(); if (paper) startTimer();
+    window.practiceCloudSync?.init({
+      appName: "七至九年级全科刷题",
+      appKey: STORE,
+      getState: () => state,
+      persistLocal: next => localStorage.setItem(STORE, JSON.stringify(next)),
+      setState: next => {
+        state = { ...defaults(), ...next };
+        currentSubject = state.currentSubject || "数学";
+        selected = new Set((state.selected || []).filter(topicById));
+        paper = state.paper || null;
+        qIndex = state.qIndex || 0;
+        renderAll();
+        if (paper && !paper.result) startTimer();
+      },
+      onStatus: toast
+    });
+  </script>
+</body>
+</html>
